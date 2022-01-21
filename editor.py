@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from PIL import Image, ImageTk
 from tkinter import filedialog
 
@@ -35,6 +36,7 @@ frame2= LabelFrame(root, border=3, padx=10, pady=10, width=c1_width, height=heig
 frame2.grid(row=2, column=2, padx=10, pady=(0, 10), ipadx=5, ipady=5, sticky=N)
 
 # adding stuff in frames
+img= None
 
 img1 = Image.open("images/Imagify-logo.jpeg")
 img1 = ImageTk.PhotoImage(img1.resize((100, 100)))
@@ -60,16 +62,16 @@ for w in root.winfo_children():
 
 def select_path(type):
     filename= ""
-    if type=='open':
-        filetypes = (
-            ('All Picture Files', ['*.png', '*.jpg', '*.jpeg', '*.ico']),
+    filetypes = (
+            ('All Picture Files', ['*.png', '*.jpg', '*.jpeg']),
             ('JPEG (*.jpg, *.jpeg)', ['*.jpg', '*.jpeg']),
             ('PNG (*.png)', '*.png'),
             ('All Files', '*.*')
         )
+    if type=='open':
         filename = filedialog.askopenfilename(title='Select an Image File', filetypes=filetypes)
     elif type=='save':
-        filename = filedialog.asksaveasfilename(title='Select where to save', mode='w', defaultextension=".jpg")
+        filename = filedialog.asksaveasfile(title='Select where to save', mode='w', filetypes=filetypes, defaultextension=".png")
 
     return filename
 
@@ -84,11 +86,14 @@ def change_img(new_img):
     else:
         n_w = iw_w
         n_h = i_h/w_s
-    global img
-    img = ImageTk.PhotoImage(new_img.resize((int(n_w) - 25, int(n_h) - 25)))
+    
+    global img, photo
+    img= new_img
+    photo = ImageTk.PhotoImage(img.resize((int(n_w) - 25, int(n_h) - 25)))
+
     for w in img_window.winfo_children():
         w.pack_forget()
-    Label(img_window, image= img).pack(padx= (iw_w-n_w)/2, pady= (iw_h-n_h)/2)
+    Label(img_window, image= photo).pack(padx= (iw_w-n_w)/2, pady= (iw_h-n_h)/2)
 
 def select_img():
     filename= select_path('open')
@@ -97,11 +102,12 @@ def select_img():
         change_img(img)
 
 def save_img():
-    global img_window
-    if len(img_window.winfo_children())==1:
-        img= Image.open(img_window.winfo_children()[0])
-        img.save(select_path('save'))
-
+    not_done()
+    # global img
+    # if img:
+    #     img.save(select_path('save'))
+def not_done():
+    messagebox.showinfo(title="Sorry!", message="Sorry, this feture is not done yet.")
 select_image_btn.configure(command=select_img)
-# save_image_btn.configure(command=save_img)
+save_image_btn.configure(command=save_img)
 root.mainloop()
