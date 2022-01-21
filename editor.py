@@ -147,7 +147,7 @@ def save_img():
     # if img:
     #     img.save(select_path('save'))
 def not_done():
-    messagebox.showinfo(title="Sorry!", message="Sorry, this feture is not done yet.")
+    messagebox.showinfo(title="Sorry !", message="This feature is not done yet.")
 select_image_btn.configure(command=select_img)
 save_image_btn.configure(command=save_img)
 root.mainloop()
