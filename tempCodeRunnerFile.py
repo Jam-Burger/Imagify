@@ -1,1 +1,1 @@
-font=('Consolas')
+40

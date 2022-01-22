@@ -7,6 +7,7 @@ import numpy as np
 img_window= None
 current_img= None
 iw_w = iw_h= 0
+
 def set_img_window(i_w, w_w, w_h):
     global img_window, iw_w, iw_h
     img_window= i_w
@@ -33,32 +34,64 @@ def change_img(new_img):
         w.pack_forget()
     Label(img_window, image= photo).pack(padx= (iw_w-n_w)//2, pady= (iw_h-n_h)//2)
 
+def new_2d_array(width, height):
+    arr= []
+    for i in range(height):
+        row=[]
+        for j in range(width):
+            row.append(None)
+        arr.append(row)
+    return arr
+        
 def rotate_a_img():
     if current_img:
         i_data= np.array(current_img)
         width, height= current_img.size
-        n_data= []
-        for i in range(width):
-            row=[]
-            for j in range(height):
-                row.append(i_data[j][i])
-            n_data.append(row)
+        n_data= new_2d_array(height, width)
+        for i in range(height):
+            for j in range(width):
+                n_data[width-j-1][i]= i_data[i, j]
         rotate_img= Image.fromarray(np.array(n_data))
-        # rotate_img= current_img
         change_img(rotate_img)
     else:
         image_does_not_exist_msg()
 def rotate_c_img():
     if current_img:
-        rotate_img= current_img
+        i_data= np.array(current_img)
+        width, height= current_img.size
+        n_data= new_2d_array(height, width)
+        for i in range(height):
+            for j in range(width):
+                n_data[j][height-i-1]= i_data[i, j]
+        rotate_img= Image.fromarray(np.array(n_data))
         change_img(rotate_img)
     else:
         image_does_not_exist_msg()
 
 def flip_h_img():
-    not_done_msg()
+    if current_img:
+        i_data= np.array(current_img)
+        width, height= current_img.size
+        n_data= new_2d_array(width, height)
+        for i in range(height):
+            for j in range(width):
+                n_data[i][width-1-j]= i_data[i, j]
+        rotate_img= Image.fromarray(np.array(n_data))
+        change_img(rotate_img)
+    else:
+        image_does_not_exist_msg()
 def flip_v_img():
-    not_done_msg()
+    if current_img:
+        i_data= np.array(current_img)
+        width, height= current_img.size
+        n_data= new_2d_array(width, height)
+        for i in range(height):
+            for j in range(width):
+                n_data[height-i-1][j]= i_data[i, j]
+        rotate_img= Image.fromarray(np.array(n_data))
+        change_img(rotate_img)
+    else:
+        image_does_not_exist_msg()
 
         
 def undo():

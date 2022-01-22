@@ -3,7 +3,7 @@ from PIL import Image, ImageTk
 
 import functions
 import ctypes
-ctypes.windll.shcore.SetProcessDpiAwareness(1)
+ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 #creating screen
 
@@ -27,6 +27,7 @@ c1_width= width - iw_w - 80
 img_window = LabelFrame(root, border=1, padx=10, pady=10, bg="#001", width=iw_w, height=iw_h)
 img_window.grid(row=0, column=0, padx=10, pady=10, rowspan=3)
 functions.set_img_window(img_window, iw_w, iw_h)
+functions.change_img(Image.open("images/default.jpg"))
 
 frame1 = LabelFrame(root, border=3, borderwidth=5, padx=10, pady=10, width=c1_width, height=125, cursor="heart", relief=RIDGE)
 frame1.grid(row=0, column=2, padx=10, pady=(10, 0), ipadx=5, ipady=5, sticky=N)
