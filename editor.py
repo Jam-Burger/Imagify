@@ -22,16 +22,17 @@ iw_h = height - 125
 iw_w = iw_h*3/2
 c1_width= width - iw_w - 80
 
-
 # creating basic layout
 
 img_window = LabelFrame(root, border=1, padx=10, pady=10, bg="#001", width=iw_w, height=iw_h)
 img_window.grid(row=0, column=0, padx=10, pady=10, rowspan=3)
+functions.set_img_window(img_window, iw_w, iw_h)
 
 frame1 = LabelFrame(root, border=3, borderwidth=5, padx=10, pady=10, width=c1_width, height=125, cursor="heart", relief=RIDGE)
 frame1.grid(row=0, column=2, padx=10, pady=(10, 0), ipadx=5, ipady=5, sticky=N)
 
 frame2_color= "#041a3d"
+frame2_font_color= "#fff3b8"
 frame2= LabelFrame(root, border=3, borderwidth=5, padx=10, bg=frame2_color, pady=10, width=c1_width, height=height/2 - 50, relief=RIDGE)
 frame2.grid(row=2, column=2, padx=10, pady=(0, 10), ipadx=5, ipady=5, sticky=N)
 
@@ -40,17 +41,21 @@ img= None
 logo_img = Image.open("images/Imagify-logo.jpeg")
 logo_img = ImageTk.PhotoImage(logo_img.resize((100, 100)))
 
-rotate_img = Image.open("images/rotate.png")
-rotate_img = ImageTk.PhotoImage(rotate_img.resize((40, 40)))
+rotate_a_img = Image.open("images/rotate_a.png")
+rotate_a_img = ImageTk.PhotoImage(rotate_a_img.resize((40, 40)))
+rotate_c_img = Image.open("images/rotate_c.png")
+rotate_c_img = ImageTk.PhotoImage(rotate_c_img.resize((40, 40)))
+
+flip_h_img = Image.open("images/flip_h.png")
+flip_h_img = ImageTk.PhotoImage(flip_h_img.resize((40, 40)))
+flip_v_img = Image.open("images/flip_v.png")
+flip_v_img = ImageTk.PhotoImage(flip_v_img.resize((40, 40)))
 
 undo_img = Image.open("images/undo.png")
 undo_img = ImageTk.PhotoImage(undo_img.resize((40, 40)))
 
 redo_img = Image.open("images/redo.png")
 redo_img = ImageTk.PhotoImage(redo_img.resize((40, 40)))
-
-flip_img = Image.open("images/flip.png")
-flip_img = ImageTk.PhotoImage(flip_img.resize((40, 40)))
 
 # adding stuff in frames
 
@@ -65,34 +70,68 @@ frame2.columnconfigure(2, weight=1)
 frame2.columnconfigure(3, weight=1)
 
 
-select_image_btn= Button(frame2, cursor="circle", text="Select Image", width=13, command= lambda : functions.select_img(img_window))
+btn_type1=[]
+btn_type2=[]
+lines=[]
+
+def line(row):
+   l= Label(frame2, text= "-"*36)
+   l.grid(row=row, column=0, columnspan=4)
+   lines.append(l)
+
+select_image_btn= Button(frame2, text="Select Image", command= functions.select_img)
 select_image_btn.grid(row=0, column=0, columnspan=2)
+btn_type1.append(select_image_btn)
 
-save_image_btn= Button(frame2, cursor="circle", text="Save Image", width=13, command= lambda : functions.save_img(img))
+save_image_btn= Button(frame2, text="Save Image", command= functions.save_img)
 save_image_btn.grid(row=0, column=2, columnspan=2)
+btn_type1.append(save_image_btn)
 
-rotate_btn= Button(frame2, image= rotate_img, cursor="circle", width= 42, height= 42, anchor='nw', command= lambda : functions.rotate_img(img))
-rotate_btn.grid(row=2, column=0)
-Label(frame2, text="Rotate").grid(row=3, column=0)
+line(1)
 
-undo_btn= Button(frame2, image= undo_img, cursor="circle", width= 42, height= 42, anchor='nw')
-undo_btn.grid(row=2, column=1)
-Label(frame2, text="Undo").grid(row=3, column=1)
+rotate_a_btn= Button(frame2, image= rotate_a_img, command= functions.rotate_a_img)
+rotate_a_btn.grid(row=2, column=0)
+btn_type2.append(rotate_a_btn)
 
-redo_btn= Button(frame2, image= redo_img, cursor="circle", width= 42, height= 42, anchor='nw')
-redo_btn.grid(row=2, column=2)
-Label(frame2, text="Redo").grid(row=3, column=2)
+rotate_c_btn= Button(frame2, image= rotate_c_img, command= functions.rotate_c_img)
+rotate_c_btn.grid(row=2, column=1)
+btn_type2.append(rotate_c_btn)
 
-flip_btn= Button(frame2, image= flip_img, cursor="circle", width= 42, height= 42, anchor='nw')
-flip_btn.grid(row=2, column=3)
-Label(frame2, text="Flip").grid(row=3, column=3)
+Label(frame2, text="Rotate").grid(row=3, column=0, columnspan=2)
 
+flip_h_btn= Button(frame2, image= flip_h_img, command= functions.flip_h_img)
+flip_h_btn.grid(row=2, column=2)
+btn_type2.append(flip_h_btn)
+
+flip_v_btn= Button(frame2, image= flip_v_img, command= functions.flip_v_img)
+flip_v_btn.grid(row=2, column=3)
+btn_type2.append(flip_v_btn)
+
+Label(frame2, text="Flip").grid(row=3, column=2, columnspan=2)
+
+undo_btn= Button(frame2, image= undo_img, command= functions.undo)
+undo_btn.grid(row=4, column=1, pady=(20, 0))
+Label(frame2, text="Undo").grid(row=5, column=1)
+btn_type2.append(undo_btn)
+
+redo_btn= Button(frame2, image= redo_img, command= functions.redo)
+redo_btn.grid(row=4, column=2, pady=(20, 0))
+Label(frame2, text="Redo").grid(row=5, column=2)
+btn_type2.append(redo_btn)
+
+line(6)
+
+for w in btn_type2:
+    w.configure(width= 42, height= 42, anchor='nw')
+for w in btn_type1 + btn_type2:
+    w.configure(cursor="circle")
 for w in frame2.winfo_children():
-    w.configure(font=('Consolas'), border= 0, relief= RIDGE)
-    w.configure(background= frame2_color, fg="#fff3b8")
+    w.configure(font=('Consolas', 12), border= 0, background= frame2_color, fg=frame2_font_color)
+for w in btn_type1:
+    w.configure(font=('Consolas', 13), width= 13)
+for w in lines:
+    w.configure(font=('Consolas'))
 
-Label(frame2, text= "-"*36, font=('Consolas'), background= frame2_color, fg="#fff3b8").grid(row=1, column=0, columnspan=4)
-Label(frame2, text= "-"*36, font=('Consolas'), background= frame2_color, fg="#fff3b8").grid(row=4, column=0, columnspan=4)
 
 # setting every frame non-resizable
 
