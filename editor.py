@@ -1,7 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
 from PIL import Image, ImageTk
-from tkinter import filedialog
 
 import functions
 import ctypes
@@ -67,13 +65,13 @@ frame2.columnconfigure(2, weight=1)
 frame2.columnconfigure(3, weight=1)
 
 
-select_image_btn= Button(frame2, cursor="circle", text="Select Image", width=13)
+select_image_btn= Button(frame2, cursor="circle", text="Select Image", width=13, command= lambda : functions.select_img(img_window))
 select_image_btn.grid(row=0, column=0, columnspan=2)
 
-save_image_btn= Button(frame2, cursor="circle", text="Save Image", width=13)
+save_image_btn= Button(frame2, cursor="circle", text="Save Image", width=13, command= lambda : functions.save_img(img))
 save_image_btn.grid(row=0, column=2, columnspan=2)
 
-rotate_btn= Button(frame2, image= rotate_img, cursor="circle", width= 42, height= 42, anchor='nw')
+rotate_btn= Button(frame2, image= rotate_img, cursor="circle", width= 42, height= 42, anchor='nw', command= lambda : functions.rotate_img(img))
 rotate_btn.grid(row=2, column=0)
 Label(frame2, text="Rotate").grid(row=3, column=0)
 
@@ -95,59 +93,10 @@ for w in frame2.winfo_children():
 
 Label(frame2, text= "-"*36, font=('Consolas'), background= frame2_color, fg="#fff3b8").grid(row=1, column=0, columnspan=4)
 Label(frame2, text= "-"*36, font=('Consolas'), background= frame2_color, fg="#fff3b8").grid(row=4, column=0, columnspan=4)
+
 # setting every frame non-resizable
 
 for w in root.winfo_children():
     w.grid_propagate(0)
 
-def select_path(type):
-    filename= ""
-    filetypes = (
-            ('All Picture Files', ['*.png', '*.jpg', '*.jpeg']),
-            ('JPEG (*.jpg, *.jpeg)', ['*.jpg', '*.jpeg']),
-            ('PNG (*.png)', '*.png'),
-            ('All Files', '*.*')
-        )
-    if type=='open':
-        filename = filedialog.askopenfilename(title='Select an Image File', filetypes=filetypes)
-    elif type=='save':
-        filename = filedialog.asksaveasfile(title='Select where to save', mode='w', filetypes=filetypes, defaultextension=".png")
-
-    return filename
-
-def change_img(new_img):
-    global img_window, iw_w, iw_h
-    i_w, i_h = new_img.size
-    w_s = i_w/iw_w
-    h_s = i_h/iw_h
-    if w_s < h_s:
-        n_w = i_w/h_s
-        n_h = iw_h
-    else:
-        n_w = iw_w
-        n_h = i_h/w_s
-    
-    global img, photo
-    img= new_img
-    photo = ImageTk.PhotoImage(img.resize((int(n_w) - 25, int(n_h) - 25)))
-
-    for w in img_window.winfo_children():
-        w.pack_forget()
-    Label(img_window, image= photo).pack(padx= (iw_w-n_w)/2, pady= (iw_h-n_h)/2)
-
-def select_img():
-    filename= select_path('open')
-    if(filename):
-        img = Image.open(filename)
-        change_img(img)
-
-def save_img():
-    not_done()
-    # global img
-    # if img:
-    #     img.save(select_path('save'))
-def not_done():
-    messagebox.showinfo(title="Sorry !", message="This feature is not done yet.")
-select_image_btn.configure(command=select_img)
-save_image_btn.configure(command=save_img)
 root.mainloop()
