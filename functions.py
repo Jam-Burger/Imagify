@@ -8,15 +8,20 @@ img_window= None
 current_img= None
 iw_w = iw_h= 0
 
+undo_data= []
+current= -1
+
 def set_img_window(i_w, w_w, w_h):
     global img_window, iw_w, iw_h
     img_window= i_w
     iw_w= w_w
     iw_h= w_h
 
-def change_img(new_img):
+def change_img(new_img, add_in_history= True):
     # if not img_window: return
     i_w, i_h = new_img.size
+    if i_w > 1400:
+        new_img= new_img.resize((1400, int(1400*i_h/i_w)))
     w_s = i_w/iw_w
     h_s = i_h/iw_h
     if w_s < h_s:
@@ -26,10 +31,15 @@ def change_img(new_img):
         n_w = iw_w
         n_h = i_h/w_s
     
-    global current_img, photo
+    global current_img, photo, current
     current_img= new_img
-    photo = ImageTk.PhotoImage(current_img.resize((int(n_w) - 25, int(n_h) - 25)))
+    if add_in_history:
+        for e in undo_data[current+1:]:
+            undo_data.remove(e)
+        undo_data.append(current_img)
+        current+=1
 
+    photo = ImageTk.PhotoImage(current_img.resize((int(n_w) - 25, int(n_h) - 25)))
     for w in img_window.winfo_children():
         w.pack_forget()
     Label(img_window, image= photo).pack(padx= (iw_w-n_w)//2, pady= (iw_h-n_h)//2)
@@ -92,10 +102,16 @@ def invert_img():
     else:
         image_does_not_exist_msg()   
 def undo():
-    not_done_msg()
+    global current
+    if current - 1>= 0:
+        change_img(undo_data[current-1], False)
+        current-=1
 
 def redo():
-    not_done_msg()
+    global current
+    if current + 1 < len(undo_data):
+        change_img(undo_data[current+1], False)
+        current+=1
 
 
 def select_path(type):
