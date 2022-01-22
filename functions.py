@@ -33,67 +33,64 @@ def change_img(new_img):
     for w in img_window.winfo_children():
         w.pack_forget()
     Label(img_window, image= photo).pack(padx= (iw_w-n_w)//2, pady= (iw_h-n_h)//2)
-
-def new_2d_array(width, height):
-    arr= []
-    for i in range(height):
-        row=[]
-        for j in range(width):
-            row.append(None)
-        arr.append(row)
-    return arr
-        
+     
 def rotate_a_img():
     if current_img:
-        i_data= np.array(current_img)
+        i_data= current_img.load()
         width, height= current_img.size
-        n_data= new_2d_array(height, width)
-        for i in range(height):
-            for j in range(width):
-                n_data[width-j-1][i]= i_data[i, j]
-        rotate_img= Image.fromarray(np.array(n_data))
-        change_img(rotate_img)
+        rotated_img= Image.new(current_img.mode, (height, width))
+        for i in range(width):
+            for j in range(height):
+                rotated_img.putpixel((j, width-i-1), i_data[i, j])
+        change_img(rotated_img)
     else:
         image_does_not_exist_msg()
 def rotate_c_img():
     if current_img:
-        i_data= np.array(current_img)
+        i_data= current_img.load()
         width, height= current_img.size
-        n_data= new_2d_array(height, width)
-        for i in range(height):
-            for j in range(width):
-                n_data[j][height-i-1]= i_data[i, j]
-        rotate_img= Image.fromarray(np.array(n_data))
-        change_img(rotate_img)
+        rotated_img= Image.new(current_img.mode, (height, width))
+        for i in range(width):
+            for j in range(height):
+                rotated_img.putpixel((height-j-1, i), i_data[i, j])
+        change_img(rotated_img)
     else:
         image_does_not_exist_msg()
 
 def flip_h_img():
     if current_img:
-        i_data= np.array(current_img)
+        i_data= current_img.load()
         width, height= current_img.size
-        n_data= new_2d_array(width, height)
-        for i in range(height):
-            for j in range(width):
-                n_data[i][width-1-j]= i_data[i, j]
-        rotate_img= Image.fromarray(np.array(n_data))
-        change_img(rotate_img)
+        flipped_img= Image.new(current_img.mode, (width, height))
+        for i in range(width):
+            for j in range(height):
+                flipped_img.putpixel((width-i-1, j), i_data[i, j])
+        change_img(flipped_img)
     else:
         image_does_not_exist_msg()
 def flip_v_img():
     if current_img:
-        i_data= np.array(current_img)
+        i_data= current_img.load()
         width, height= current_img.size
-        n_data= new_2d_array(width, height)
-        for i in range(height):
-            for j in range(width):
-                n_data[height-i-1][j]= i_data[i, j]
-        rotate_img= Image.fromarray(np.array(n_data))
-        change_img(rotate_img)
+        flipped_img= Image.new(current_img.mode, (width, height))
+        for i in range(width):
+            for j in range(height):
+                flipped_img.putpixel((i, height-j-1), i_data[i, j])
+        change_img(flipped_img)
     else:
         image_does_not_exist_msg()
-
-        
+invert= lambda c: (255-c[0], 255-c[1], 255-c[2])
+def invert_img():
+    if current_img:
+        i_data= current_img.load()
+        width, height= current_img.size
+        inverted_img= Image.new(current_img.mode, (width, height))
+        for i in range(width):
+            for j in range(height):
+                inverted_img.putpixel((i, j), invert(i_data[i, j]))
+        change_img(inverted_img)
+    else:
+        image_does_not_exist_msg()   
 def undo():
     not_done_msg()
 

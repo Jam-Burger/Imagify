@@ -52,6 +52,9 @@ flip_h_img = ImageTk.PhotoImage(flip_h_img.resize((40, 40)))
 flip_v_img = Image.open("images/flip_v.png")
 flip_v_img = ImageTk.PhotoImage(flip_v_img.resize((40, 40)))
 
+invert_img = Image.open("images/invert.png")
+invert_img = ImageTk.PhotoImage(invert_img.resize((40, 40)))
+
 undo_img = Image.open("images/undo.png")
 undo_img = ImageTk.PhotoImage(undo_img.resize((40, 40)))
 
@@ -110,6 +113,11 @@ btn_type2.append(flip_v_btn)
 
 Label(frame2, text="Flip").grid(row=3, column=2, columnspan=2)
 
+invert_btn= Button(frame2, image= invert_img, command= functions.invert_img)
+invert_btn.grid(row=4, column=3, pady=(20, 0))
+Label(frame2, text="Invert\nColor").grid(row=5, column=3)
+btn_type2.append(invert_btn)
+
 undo_btn= Button(frame2, image= undo_img, command= functions.undo)
 undo_btn.grid(row=4, column=1, pady=(20, 0))
 Label(frame2, text="Undo").grid(row=5, column=1)
@@ -127,7 +135,7 @@ for w in btn_type2:
 for w in btn_type1 + btn_type2:
     w.configure(cursor="circle")
 for w in frame2.winfo_children():
-    w.configure(font=('Consolas', 12), border= 0, background= frame2_color, fg=frame2_font_color)
+    w.configure(font=('Consolas', 11), border= 0, background= frame2_color, fg=frame2_font_color)
 for w in btn_type1:
     w.configure(font=('Consolas', 13), width= 13)
 for w in lines:
