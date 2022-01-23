@@ -55,6 +55,7 @@ def rotate_a_img():
         change_img(rotated_img)
     else:
         image_does_not_exist_msg()
+        
 def rotate_c_img():
     if current_img:
         i_data= current_img.load()
@@ -78,6 +79,7 @@ def flip_h_img():
         change_img(flipped_img)
     else:
         image_does_not_exist_msg()
+
 def flip_v_img():
     if current_img:
         i_data= current_img.load()
@@ -90,6 +92,7 @@ def flip_v_img():
     else:
         image_does_not_exist_msg()
 invert= lambda c: (255-c[0], 255-c[1], 255-c[2])
+
 def invert_img():
     if current_img:
         i_data= current_img.load()
@@ -101,6 +104,9 @@ def invert_img():
         change_img(inverted_img)
     else:
         image_does_not_exist_msg()   
+
+def resize_img():
+    pass
 def undo():
     global current
     if current - 1>= 0:

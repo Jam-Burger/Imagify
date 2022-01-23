@@ -41,25 +41,29 @@ frame2.grid(row=2, column=2, padx=10, pady=(0, 10), ipadx=5, ipady=5, sticky=N)
 img= None
 logo_img = Image.open("images/Imagify-logo.jpeg")
 logo_img = ImageTk.PhotoImage(logo_img.resize((100, 100)))
+icon_size= (40, 40)
 
 rotate_a_img = Image.open("images/rotate_a.png")
-rotate_a_img = ImageTk.PhotoImage(rotate_a_img.resize((40, 40)))
+rotate_a_img = ImageTk.PhotoImage(rotate_a_img.resize(icon_size))
 rotate_c_img = Image.open("images/rotate_c.png")
-rotate_c_img = ImageTk.PhotoImage(rotate_c_img.resize((40, 40)))
+rotate_c_img = ImageTk.PhotoImage(rotate_c_img.resize(icon_size))
 
 flip_h_img = Image.open("images/flip_h.png")
-flip_h_img = ImageTk.PhotoImage(flip_h_img.resize((40, 40)))
+flip_h_img = ImageTk.PhotoImage(flip_h_img.resize(icon_size))
 flip_v_img = Image.open("images/flip_v.png")
-flip_v_img = ImageTk.PhotoImage(flip_v_img.resize((40, 40)))
+flip_v_img = ImageTk.PhotoImage(flip_v_img.resize(icon_size))
 
 invert_img = Image.open("images/invert.png")
-invert_img = ImageTk.PhotoImage(invert_img.resize((40, 40)))
+invert_img = ImageTk.PhotoImage(invert_img.resize(icon_size))
+
+resize_img = Image.open("images/resize.png")
+resize_img = ImageTk.PhotoImage(resize_img.resize(icon_size))
 
 undo_img = Image.open("images/undo.png")
-undo_img = ImageTk.PhotoImage(undo_img.resize((40, 40)))
+undo_img = ImageTk.PhotoImage(undo_img.resize(icon_size))
 
 redo_img = Image.open("images/redo.png")
-redo_img = ImageTk.PhotoImage(redo_img.resize((40, 40)))
+redo_img = ImageTk.PhotoImage(redo_img.resize(icon_size))
 
 # adding stuff in frames
 
@@ -113,10 +117,10 @@ btn_type2.append(flip_v_btn)
 
 Label(frame2, text="Flip").grid(row=3, column=2, columnspan=2)
 
-invert_btn= Button(frame2, image= invert_img, command= functions.invert_img)
-invert_btn.grid(row=4, column=3, pady=(20, 0))
-Label(frame2, text="Invert\nColor").grid(row=5, column=3)
-btn_type2.append(invert_btn)
+resize_btn= Button(frame2, image= resize_img, command= functions.resize_img)
+resize_btn.grid(row=4, column=0, pady=(20, 0))
+Label(frame2, text="Resize").grid(row=5, column=0)
+btn_type2.append(resize_btn)
 
 undo_btn= Button(frame2, image= undo_img, command= functions.undo)
 undo_btn.grid(row=4, column=1, pady=(20, 0))
@@ -127,6 +131,11 @@ redo_btn= Button(frame2, image= redo_img, command= functions.redo)
 redo_btn.grid(row=4, column=2, pady=(20, 0))
 Label(frame2, text="Redo").grid(row=5, column=2)
 btn_type2.append(redo_btn)
+
+invert_btn= Button(frame2, image= invert_img, command= functions.invert_img)
+invert_btn.grid(row=4, column=3, pady=(20, 0))
+Label(frame2, text="Invert\nColor").grid(row=5, column=3)
+btn_type2.append(invert_btn)
 
 line(6)
 
