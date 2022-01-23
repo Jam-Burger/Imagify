@@ -117,15 +117,17 @@ def redo():
 def select_path(type):
     filename= ""
     filetypes = (
-            ('All Picture Files', ['*.png', '*.jpg', '*.jpeg']),
-            ('JPEG (*.jpg, *.jpeg)', ['*.jpg', '*.jpeg']),
+            ('All Picture Files', ['*.png', '*.jpg', '*.jpeg', '*.bmp']),
+            ('JPEG (*.jpeg)','*.jpeg'),
+            ('JPG (*.jpg)', '*.jpg'),
             ('PNG (*.png)', '*.png'),
+            ('BMP (*.bmp)', '*.bmp'),
             ('All Files', '*.*')
         )
     if type=='open':
         filename = filedialog.askopenfilename(title='Select an Image File', filetypes=filetypes)
     elif type=='save':
-        filename = filedialog.asksaveasfile(title='Select where to save', mode='w', filetypes=filetypes, defaultextension=".png")
+        filename = filedialog.asksaveasfilename(title='Select where to save', filetypes=filetypes, defaultextension=filetypes)
 
     return filename
 
@@ -136,9 +138,9 @@ def select_img():
         change_img(img)
 
 def save_img():
-    not_done_msg()
-    # if img:
-    #     img.save(select_path('save'))
+    if current_img:
+        path= select_path('save')
+        current_img.save(path)
 
 def not_done_msg():
     messagebox.showinfo(title="Sorry !", message="This feature is not done yet.")

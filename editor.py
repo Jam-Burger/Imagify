@@ -141,7 +141,6 @@ for w in btn_type1:
 for w in lines:
     w.configure(font=('Consolas'))
 
-
 # setting every frame non-resizable
 
 for w in root.winfo_children():
