@@ -1,5 +1,4 @@
 from tkinter import *
-from turtle import st
 from PIL import Image
 
 import functions as fns
@@ -27,14 +26,14 @@ file_menu = Menu(menu_bar)
 menu_bar.add_cascade(label="File", menu=file_menu)
 file_menu.add_command(label="Open")
 
-iw_h = height - 130
+iw_h = height - 140
 iw_w = iw_h*1.55
 c1_width = width - iw_w - 60
 
 # creating basic layout
 
-img_window = Frame(root, border=1, bg="#001", width=iw_w, height=iw_h)
-img_window.grid(row=0, column=0, padx=10, pady=(10, 0), rowspan=3)
+img_window = Canvas(root, bg="#001", width=iw_w, height=iw_h)
+img_window.grid(row=0, column=0, rowspan=3)
 fns.set_img_window(img_window, iw_w, iw_h)
 fns.change_img(Image.open("images/default.jpg"))
 
@@ -55,7 +54,6 @@ main_frame.grid(row=1, column=1, padx=10, pady=(
 dynamic_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
                       pady=10, width=c1_width, height=height - 350 - main_frame_height, relief=RIDGE)
 dynamic_frame.grid(row=2, column=1, padx=10, pady=(5, 0), sticky=N)
-
 
 crop_rotate_frame = Frame(dynamic_frame, bg=color_1,
                           width=c1_width, height=height - 350 - main_frame_height)
@@ -118,11 +116,11 @@ adjust_btn.grid(row=2, column=3, pady=(20, 0))
 Label(main_frame, text="Adjust").grid(row=5, column=3)
 btn_type2.append(adjust_btn)
 
-resize_btn = Button(crop_rotate_frame, image=my_images.resize_img,
-                    command=lambda: fns.resize_img(root))
-resize_btn.grid(row=0, column=0, pady=(20, 0))
-Label(crop_rotate_frame, text="Resize").grid(row=1, column=0)
-btn_type2.append(resize_btn)
+# resize_btn = Button(crop_rotate_frame, image=my_images.resize_img,
+#                     command=lambda: fns.resize_img(root))
+# resize_btn.grid(row=0, column=0, pady=(20, 0))
+# Label(crop_rotate_frame, text="Resize").grid(row=1, column=0)
+# btn_type2.append(resize_btn)
 
 # invert_btn = Button(main_frame, image=my_images.invert_img, command=fns.invert_img)
 # invert_btn.grid(row=2, column=3, pady=(20, 0))

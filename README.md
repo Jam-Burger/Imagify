@@ -1,2 +1,4 @@
 # Image-Editor
-An Image Editor using Python, tkinter and Pillow.
+An Image Editor made with Python, tkinter and Pillow (and also a lot of efforts :D).
+
+

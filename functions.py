@@ -39,10 +39,8 @@ def change_img(new_img, add_in_history=True):
         current += 1
 
     photo = ImageTk.PhotoImage(
-        current_img.resize((int(n_w) - 25, int(n_h) - 25)))
-    for w in img_window.winfo_children():
-        w.pack_forget()
-    Label(img_window, image=photo).pack(padx=(iw_w-n_w)//2, pady=(iw_h-n_h)//2)
+        current_img.resize((int(n_w) - 20, int(n_h) - 20)))
+    img_window.create_image(iw_w/2, iw_h/2, image= photo)
 
 
 def change_frame(parent, frame):
