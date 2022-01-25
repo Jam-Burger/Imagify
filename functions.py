@@ -65,8 +65,8 @@ def finished(event):
         img_window.delete(rect, c1, c2)
     i_w, i_h= current_img.size
 
-    np1= (int(p1[0]*in_w/i_w), int(p1[1]*in_h/i_h))
-    np2= (int(p2[0]*in_w/i_w), int(p2[1]*in_h/i_h))
+    np1= (int(p1[0]/in_w*i_w), int(p1[1]/in_h*i_h))
+    np2= (int(p2[0]/in_w*i_w), int(p2[1]/in_h*i_h))
 
     i_data = current_img.load()
     width= np2[0] - np1[0]
@@ -223,7 +223,7 @@ def select_path(type):
             title='Select an Image File', initialdir='./', filetypes=filetypes)
     elif type == 'save':
         filename = filedialog.asksaveasfilename(
-            title='Select where to save', initialfile='Imagify_img', defaultextension='.png', filetypes=filetypes)
+            title='Select Where to Save', initialfile='Imagify_img', defaultextension='.png', filetypes=filetypes)
 
     return filename
 
@@ -232,7 +232,11 @@ def open_img():
     filename = select_path('open')
     if(filename):
         img = Image.open(filename)
-        change_img(img)
+        if img:
+            global current
+            history_data.clear()
+            current= -1
+            change_img(img)
 
 
 def save_img():
