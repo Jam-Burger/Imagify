@@ -1,3 +1,4 @@
+from msilib.schema import CheckBox
 from tkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog, messagebox
@@ -199,21 +200,70 @@ def invert_img():
 
 
 resize_window = None
-def resize_img():
-    not_done_msg()
-    return
-    if current_img:
-        global resize_window, resize_window
-        if not resize_window:
-            resize_window = Toplevel(img_window)
-            resize_window.geometry("300x150")
-            resize_window.resizable(0, 0)
-            Label(resize_window, text= "Width").grid(row=0, column=0, padx= 10, pady= 10)
-            width= Entry(resize_window)
-            Label(resize_window, text= "Height").grid(row=1, column=0, padx= 10)
-        else :    
+
+
+def resize(w, h):
+    try:
+        width = w.get()
+        height = h.get()
+        if width <= 0 or height <= 0 or width > 2000 or height > 2000:
+            messagebox.showerror(title="Imagify",
+                                 message="Please enter 1 to 2000.")
+            resize_window.focus()
+        else:
             resize_window.destroy()
-            resize_window= None
+            if (width, height) != current_img.size:
+                change_img(current_img.resize((width, height)))
+    except:
+        messagebox.showerror(title="Imagify",
+                             message="Please enter valid input.")
+        resize_window.focus()
+
+
+var= width= height = None
+
+
+def aspect_ratio(height_entry):
+    try:
+        if var.get():
+            height_entry.configure(state= DISABLED)
+            height.set(int(width.get()*current_img.size[1]/current_img.size[0]))
+        else:
+            height_entry.configure(state= NORMAL)
+    except:
+        messagebox.showerror(title="Imagify",
+                             message="Please enter valid input.")
+        resize_window.focus()
+
+def resize_img():
+    if current_img:
+        global resize_window
+        if resize_window:
+            resize_window.destroy()
+
+        resize_window = Toplevel(img_window)
+        resize_window.geometry("300x150")
+        resize_window.resizable(0, 0)
+        Label(resize_window, text="Width").grid(
+            row=0, column=0, padx=10, pady=10)
+        Label(resize_window, text="Height").grid(row=1, column=0, padx=10)
+        i_w, i_h = current_img.size
+
+        global var, width, height
+        width = IntVar(value=i_w)
+        height = IntVar(value=i_h)
+        width_entry = Entry(resize_window, textvariable=width, width=10, )
+        width_entry.grid(
+            row=0, column=1, padx=10, pady=10, sticky=W)
+        height_entry = Entry(resize_window, textvariable=height, width=10)
+        height_entry.grid(
+            row=1, column=1, padx=10, pady=10, sticky=W)
+        width_entry.configure(invcmd= lambda: aspect_ratio(height_entry))
+        var = IntVar(value=0)
+        Checkbutton(resize_window, text="Keep Aspect Ratio", variable=var, command=lambda: aspect_ratio(height_entry)).grid(
+            row=2, column=0, padx=10, pady=10, sticky=W)
+        Button(resize_window, text="OK", width=10,
+               command=lambda: resize(width, height)).grid(row=2, column=1, padx=10, pady=10, sticky=W)
     else:
         image_does_not_exist_msg()
 
@@ -290,9 +340,9 @@ def quit(parent):
         parent.destroy()
 
 
-def about():
+def about(event=None):
     messagebox.showinfo(
-        title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay", font=("Monospace", 15))
+        title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay")
 
 
 def not_done_msg():

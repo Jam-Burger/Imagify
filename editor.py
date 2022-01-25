@@ -80,13 +80,14 @@ main_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
 main_frame.grid(row=2, column=1, padx=10, pady=(5, 0))
 
 # importing images
-img = None
 my_images = Images()
-logo_img = my_images.logo
 
 # adding stuff in frames
 
-Label(imagify_frame, image=logo_img).grid(row=0, column=0, rowspan=2)
+imagify_logo = Label(imagify_frame, image=my_images.logo)
+imagify_logo.grid(row=0, column=0, rowspan=2)
+imagify_logo.bind("<Button 1>", fns.about)
+
 Label(imagify_frame, text="Imagify", font=('Comic Sans MS bold', 20)).grid(
     row=0, column=1, padx=5)
 Label(imagify_frame, text="By Jam-Burger", font=('Comic Sans MS', 10)
@@ -176,7 +177,6 @@ flip_v_btn = Button(main_frame, image=my_images.flip_v_img,
 flip_v_btn.grid(row=2, column=3)
 
 Label(main_frame, text="Flip").grid(row=3, column=2, columnspan=2)
-
 
 Label(main_frame, text="-"*50, font=('Consolas')
       ).grid(row=4, column=0, columnspan=4)
