@@ -114,6 +114,7 @@ def start_making(event):
 
 def crop_img():
     if current_img:
+        messagebox.showinfo(title="Crop Instruction", message="Select area for crop")
         img_window.bind('<Button 1>', start_making)
     else:
         image_does_not_exist_msg()
