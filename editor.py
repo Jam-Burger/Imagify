@@ -65,7 +65,7 @@ imagify_frame.grid(row=0, column=1, padx=10, pady=(
 color_1 = "#041a3d"
 color_2 = "#fff3b8"
 
-main_frame_height = height/5
+main_frame_height = height/6
 main_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
                    pady=10, width=c1_width, height=main_frame_height, relief=RIDGE)
 main_frame.grid(row=1, column=1, padx=10, pady=(
@@ -119,6 +119,12 @@ Label(main_frame, text="-"*50, font=('Consolas')).grid(row=1, column=0, columnsp
 # Label(main_frame, text="Crop&\nRotate").grid(row=5, column=0)
 # btn_type2.append(crop_rotate_btn)
 
+crop_btn = Button(main_frame, image=my_images.crop_rotate_img,
+                         command= fns.crop_img)
+crop_btn.grid(row=2, column=0, pady=(20, 0))
+Label(main_frame, text="Crop").grid(row=3, column=0)
+btn_type2.append(crop_btn)
+
 undo_btn = Button(main_frame, image=my_images.undo_img, command=fns.undo)
 undo_btn.grid(row=2, column=1, pady=(20, 0))
 Label(main_frame, text="Undo").grid(row=3, column=1)
@@ -137,14 +143,14 @@ btn_type2.append(redo_btn)
 
 resize_btn = Button(main_frame, image=my_images.resize_img,
                     command=lambda: fns.resize_img(root))
-resize_btn.grid(row=2, column=0, pady=(20, 0))
-Label(main_frame, text="Resize").grid(row=3, column=0)
+resize_btn.grid(row=2, column=3, pady=(20, 0))
+Label(main_frame, text="Resize").grid(row=3, column=3)
 btn_type2.append(resize_btn)
 
-invert_btn = Button(main_frame, image=my_images.invert_img, command=fns.invert_img)
-invert_btn.grid(row=2, column=3, pady=(20, 0))
-Label(main_frame, text="Invert\nColor").grid(row=3, column=3)
-btn_type2.append(invert_btn)
+# invert_btn = Button(main_frame, image=my_images.invert_img, command=fns.invert_img)
+# invert_btn.grid(row=2, column=3, pady=(20, 0))
+# Label(main_frame, text="Invert\nColor").grid(row=3, column=3)
+# btn_type2.append(invert_btn)
 
 for w in btn_type2:
     w.configure(width=42, height=42, anchor='nw')
@@ -174,11 +180,6 @@ flip_v_btn = Button(crop_rotate_frame, image=my_images.flip_v_img, command=fns.f
 flip_v_btn.grid(row=2, column=3)
 
 Label(crop_rotate_frame, text="Flip").grid(row=3, column=2, columnspan=2)
-
-crop_btn = Button(crop_rotate_frame, image=my_images.crop_rotate_img,
-                         command= fns.crop_img)
-crop_btn.grid(row=4, column=0, pady=(20, 0))
-Label(crop_rotate_frame, text="Crop").grid(row=5, column=0)
 
 for w in crop_rotate_frame.winfo_children():
     w.configure(font=('Consolas', 11), border=0,

@@ -1,4 +1,5 @@
 from tkinter import *
+from turtle import pen
 from PIL import Image, ImageTk
 from tkinter import filedialog, messagebox
 
@@ -8,7 +9,6 @@ i_f_w = i_f_h = 0
 
 history_data = []
 current = -1
-
 
 def set_img_window(i_w, w_w, w_h):
     global img_window, i_f_w, i_f_h
@@ -25,7 +25,7 @@ def change_img(new_img, add_in_history=True):
     elif i_h > 1400:
         new_img = new_img.resize((int(1400*i_w/i_h), 1400))
 
-    i_w, i_h = new_img.size 
+    i_w, i_h = new_img.size
     global current_img, photo, current, in_w, in_h
     w_s = i_w/i_f_w
     h_s = i_h/i_f_h
