@@ -1,5 +1,4 @@
 from tkinter import *
-from turtle import pen
 from PIL import Image, ImageTk
 from tkinter import filedialog, messagebox
 
@@ -9,7 +8,6 @@ i_f_w = i_f_h = 0
 
 history_data = []
 current = -1
-
 def set_img_window(i_w, w_w, w_h):
     global img_window, i_f_w, i_f_h
     img_window = i_w
@@ -185,29 +183,35 @@ def invert_img():
     else:
         image_does_not_exist_msg()
 
-
+resize_window_open= False
 def resize_img(parent):
-    not_done_msg()
-    # if current_img:
-    #     layer= Toplevel(img_window, width=200, height=200)
-    #     layer.resizable(0, 0)
-    # else:
-    #     image_does_not_exist_msg()
+    if current_img:
+        global resize_window_open
+        if not resize_window_open:
+            resize_window= Toplevel(img_window, width=400, height= 200)
+            resize_window.resizable(0, 0)
+            resize_window_open= True
+    else:
+        image_does_not_exist_msg()
 
 
-def undo(event):
+def undo(event=None):
     global current
-    if current - 1 >= 0:
-        current -= 1
-        change_img(history_data[current], False)
+    if current_img:
+        if current - 1 >= 0:
+            current -= 1
+            change_img(history_data[current], False)
+    else:
+        image_does_not_exist_msg()
 
-
-def redo(event):
+def redo(event=None):
     global current
-    if current + 1 < len(history_data):
-        current += 1
-        change_img(history_data[current], False)
-
+    if current_img:
+        if current + 1 < len(history_data):
+            current += 1
+            change_img(history_data[current], False)
+    else:
+        image_does_not_exist_msg()
 
 def select_path(type):
     filename = ""
@@ -221,15 +225,15 @@ def select_path(type):
     )
     if type == 'open':
         filename = filedialog.askopenfilename(
-            title='Select an Image File', initialdir='./', filetypes=filetypes)
+            title='Open File', initialdir='./', filetypes=filetypes)
     elif type == 'save':
         filename = filedialog.asksaveasfilename(
-            title='Select Where to Save', initialfile='Imagify_img', defaultextension='.png', filetypes=filetypes)
+            title='Save', initialfile='Imagify_img', defaultextension='.png', filetypes=filetypes)
 
     return filename
 
 
-def open_img(event):
+def open_img(event=None):
     filename = select_path('open')
     if(filename):
         img = Image.open(filename)
@@ -240,20 +244,31 @@ def open_img(event):
             change_img(img)
 
 
-def save_img(event):
+def save_img(event=None):
     if current_img:
         path = select_path('save')
         if path:
             current_img.save(path)
+    else:
+        image_does_not_exist_msg()
 
+def quit(parent):
+    if len(history_data)>1:
+        ans= messagebox.askyesnocancel("Imagify", "Do you want to save your changes?")
+        if ans==True:
+            save_img()
+        elif ans==False:
+            parent.destroy()
+    elif messagebox.askokcancel("Imagify", "Do you want to quit?"):
+        parent.destroy()
 def about():
     messagebox.showinfo(
-        title="About", message="<b>Imagify</b>")
+        title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay")
 def not_done_msg():
     messagebox.showinfo(
-        title="Sorry !", message="This feature is not done yet.")
+        title="Imagify", message="This feature is not done yet.")
 
 
 def image_does_not_exist_msg():
-    messagebox.showerror(title="Image not Found",
+    messagebox.showerror(title="Imagify",
                          message="Please add an image first.")
