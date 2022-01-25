@@ -1,5 +1,3 @@
-from cmath import infj
-from re import I
 from tkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog, messagebox
@@ -197,14 +195,14 @@ def resize_img(parent):
     #     image_does_not_exist_msg()
 
 
-def undo():
+def undo(event):
     global current
     if current - 1 >= 0:
         current -= 1
         change_img(history_data[current], False)
 
 
-def redo():
+def redo(event):
     global current
     if current + 1 < len(history_data):
         current += 1
@@ -231,7 +229,7 @@ def select_path(type):
     return filename
 
 
-def open_img():
+def open_img(event):
     filename = select_path('open')
     if(filename):
         img = Image.open(filename)
@@ -242,12 +240,15 @@ def open_img():
             change_img(img)
 
 
-def save_img():
+def save_img(event):
     if current_img:
         path = select_path('save')
-        current_img.save(path)
+        if path:
+            current_img.save(path)
 
-
+def about():
+    messagebox.showinfo(
+        title="About", message="<b>Imagify</b>")
 def not_done_msg():
     messagebox.showinfo(
         title="Sorry !", message="This feature is not done yet.")

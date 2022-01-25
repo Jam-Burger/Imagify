@@ -19,12 +19,30 @@ bg_color = "#90A8F4"
 root.geometry(f"{width}x{height}")
 root.configure(bg=bg_color, bd=10, highlightcolor="#98F", highlightthickness=5)
 
-menu_bar = Menu(root)
+menu_bar = Menu(root, activeborderwidth=5)
 root.configure(menu=menu_bar)
 
-file_menu = Menu(menu_bar)
+file_menu = Menu(menu_bar, tearoff=0, activeborderwidth=5)
 menu_bar.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="Open")
+file_menu.add_command(label="Open", command=fns.open_img, accelerator="Ctrl+O")
+root.bind('<Control-o>', fns.open_img)
+
+file_menu.add_command(label="Save", command=fns.save_img, accelerator="Ctrl+S")
+root.bind('<Control-s>', fns.save_img)
+file_menu.add_separator()
+file_menu.add_command(label="Exit", command=root.destroy, accelerator="Ctrl+Q")
+root.bind('<Control-q>', root.destroy)
+
+edit_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Edit", menu=edit_menu)
+edit_menu.add_command(label="Undo", command=fns.undo, accelerator="Ctrl+Z")
+root.bind('<Control-z>', fns.undo)
+edit_menu.add_command(label="Redo", command=fns.redo, accelerator="Ctrl+Y")
+root.bind('<Control-y>', fns.redo)
+
+help_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Help", menu=help_menu)
+help_menu.add_command(label="About", command=fns.about)
 
 i_f_w = height - 140
 i_f_h = int(i_f_w*1.55)
@@ -93,7 +111,6 @@ btn_type1.append(open_image_btn)
 save_image_btn = Button(main_frame, text="Save Image", command=fns.save_img)
 save_image_btn.grid(row=0, column=2, columnspan=2)
 btn_type1.append(save_image_btn)
-
 Label(main_frame, text="-"*50, font=('Consolas')).grid(row=1, column=0, columnspan=4)
 
 # crop_rotate_btn = Button(main_frame, image=my_images.crop_rotate_img,
