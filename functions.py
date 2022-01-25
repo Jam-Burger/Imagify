@@ -254,16 +254,17 @@ def save_img(event=None):
 
 def quit(parent):
     if len(history_data)>1:
-        ans= messagebox.askyesnocancel("Imagify", "Do you want to save your changes?")
+        ans= messagebox.askyesnocancel("Imagify", "Do you want to save your changes?", icon='warning')
         if ans==True:
             save_img()
         elif ans==False:
             parent.destroy()
-    elif messagebox.askokcancel("Imagify", "Do you want to quit?"):
+    elif messagebox.askokcancel("Imagify", "Do you want to quit?", icon='warning'):
         parent.destroy()
+
 def about():
     messagebox.showinfo(
-        title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay")
+        title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay", font=("Monospace", 15))
 def not_done_msg():
     messagebox.showinfo(
         title="Imagify", message="This feature is not done yet.")

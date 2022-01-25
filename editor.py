@@ -94,7 +94,6 @@ Label(imagify_frame, text="By Jam-Burger", font=('Comic Sans MS', 10)
 for i in range(4):
     middle_frame.columnconfigure(i, weight=1)
 
-
 btn_type1 = []
 btn_type2 = []
 
@@ -116,17 +115,17 @@ Label(middle_frame, text="-"*50, font=('Consolas')).grid(row=1, column=0, column
 
 crop_btn = Button(middle_frame, image=my_images.crop_rotate_img,
                          command= fns.crop_img)
-crop_btn.grid(row=2, column=0, pady=(20, 0))
+crop_btn.grid(row=2, column=0, pady=(10, 0))
 Label(middle_frame, text="Crop").grid(row=3, column=0)
 btn_type2.append(crop_btn)
 
 undo_btn = Button(middle_frame, image=my_images.undo_img, command=fns.undo)
-undo_btn.grid(row=2, column=1, pady=(20, 0))
+undo_btn.grid(row=2, column=1, pady=(10, 0))
 Label(middle_frame, text="Undo").grid(row=3, column=1)
 btn_type2.append(undo_btn)
 
 redo_btn = Button(middle_frame, image=my_images.redo_img, command=fns.redo)
-redo_btn.grid(row=2, column=2, pady=(20, 0))
+redo_btn.grid(row=2, column=2, pady=(10, 0))
 Label(middle_frame, text="Redo").grid(row=3, column=2)
 btn_type2.append(redo_btn)
 
@@ -138,14 +137,9 @@ btn_type2.append(redo_btn)
 
 resize_btn = Button(middle_frame, image=my_images.resize_img,
                     command=lambda: fns.resize_img(root))
-resize_btn.grid(row=2, column=3, pady=(20, 0))
+resize_btn.grid(row=2, column=3, pady=(10, 0))
 Label(middle_frame, text="Resize").grid(row=3, column=3)
 btn_type2.append(resize_btn)
-
-# invert_btn = Button(main_frame, image=my_images.invert_img, command=fns.invert_img)
-# invert_btn.grid(row=2, column=3, pady=(20, 0))
-# Label(main_frame, text="Invert\nColor").grid(row=3, column=3)
-# btn_type2.append(invert_btn)
 
 for w in btn_type2:
     w.configure(width=42, height=42, anchor='nw')
@@ -176,10 +170,17 @@ flip_v_btn.grid(row=2, column=3)
 
 Label(main_frame, text="Flip").grid(row=3, column=2, columnspan=2)
 
+
+Label(main_frame, text="-"*50, font=('Consolas')).grid(row=4, column=0, columnspan=4)
+
+invert_btn = Button(main_frame, image=my_images.invert_img, command=fns.invert_img)
+invert_btn.grid(row=5, column=0, pady=(20, 0))
+Label(main_frame, text="Invert\nColor").grid(row=6, column=0)
+
+
 for w in main_frame.winfo_children():
     w.configure(font=('Consolas', 11), border=0,
                 background=color_1, fg=color_2)
-
 # setting every frame non-resizable
 for w in root.winfo_children():
     w.grid_propagate(0)
