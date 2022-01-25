@@ -8,6 +8,8 @@ i_f_w = i_f_h = 0
 
 history_data = []
 current = -1
+
+
 def set_img_window(i_w, w_w, w_h):
     global img_window, i_f_w, i_f_h
     img_window = i_w
@@ -43,15 +45,18 @@ def change_img(new_img, add_in_history=True):
 
     photo = ImageTk.PhotoImage(current_img.resize((in_w, in_h)))
     img_window.create_image(in_w/2, in_h/2, image=photo)
-    img_window.configure(width= in_w, height= in_h)
+    img_window.configure(width=in_w, height=in_h)
+
 
 def change_frame(parent, frame):
     pass
 
-p1= None
-p2= None      
 
-rect= c1= c2 = None
+p1 = None
+p2 = None
+
+rect = c1 = c2 = None
+
 
 def finished(event):
     img_window.unbind('<ButtonRelease-1>')
@@ -59,16 +64,16 @@ def finished(event):
     img_window.unbind('<Button 1>')
     if rect:
         img_window.delete(rect, c1, c2)
-    i_w, i_h= current_img.size
+    i_w, i_h = current_img.size
 
-    np1= (int(p1[0]/in_w*i_w), int(p1[1]/in_h*i_h))
-    np2= (int(p2[0]/in_w*i_w), int(p2[1]/in_h*i_h))
+    np1 = (int(p1[0]/in_w*i_w), int(p1[1]/in_h*i_h))
+    np2 = (int(p2[0]/in_w*i_w), int(p2[1]/in_h*i_h))
 
     i_data = current_img.load()
-    width= np2[0] - np1[0]
-    height= np2[1] - np1[1]
-    dx= 0 if width==0 else int(abs(width)/width)
-    dy= 0 if height==0 else int(abs(height)/height)
+    width = np2[0] - np1[0]
+    height = np2[1] - np1[1]
+    dx = 0 if width == 0 else int(abs(width)/width)
+    dy = 0 if height == 0 else int(abs(height)/height)
 
     cropped_img = Image.new(current_img.mode, (abs(width), abs(height)))
 
@@ -76,41 +81,50 @@ def finished(event):
     for i in range(np1[0], np2[0], dx):
         y = 0
         for j in range(np1[1], np2[1], dy):
-            x0= x if dx==1 else abs(width)-x-1
-            y0= y if dy==1 else abs(height)-y-1
+            x0 = x if dx == 1 else abs(width)-x-1
+            y0 = y if dy == 1 else abs(height)-y-1
             cropped_img.putpixel((x0, y0), i_data[i, j])
             y += 1
         x += 1
-        
+
     change_img(cropped_img)
-    
+
+
 def move_p2(event):
     global p2, rect, c1, c2
     iw_w = img_window.winfo_width()
     iw_h = img_window.winfo_height()
     p2 = (event.x, event.y)
-    if p2[0] < 0: p2[0] = 0
-    elif p2[0] > iw_w - 1: p2[0] = iw_w - 1
-    if p2[1] < 0: p2[1] = 0
-    elif p2[1] > iw_h - 1: p2[1] = iw_h - 1
+    if p2[0] < 0:
+        p2[0] = 0
+    elif p2[0] > iw_w - 1:
+        p2[0] = iw_w - 1
+    if p2[1] < 0:
+        p2[1] = 0
+    elif p2[1] > iw_h - 1:
+        p2[1] = iw_h - 1
 
-    x1, y1= p1
-    x2, y2= p2
+    x1, y1 = p1
+    x2, y2 = p2
     if rect:
         img_window.delete(rect, c1, c2)
-    rect = img_window.create_rectangle(x1, y1, x2, y2, outline= 'white', width= 3)
+    rect = img_window.create_rectangle(
+        x1, y1, x2, y2, outline='white', width=3)
     c1 = img_window.create_oval(x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill='black')
     c2 = img_window.create_oval(x2 - 5, y2 - 5, x2 + 5, y2 + 5, fill='black')
     img_window.bind('<ButtonRelease-1>', finished)
+
 
 def start_making(event):
     global p1, p2
     p1 = p2 = (event.x, event.y)
     img_window.bind('<B1-Motion>', move_p2)
 
+
 def crop_img():
     if current_img:
-        messagebox.showinfo(title="Crop Instruction", message="Select area for crop")
+        messagebox.showinfo(title="Crop Instruction",
+                            message="Select area for crop")
         img_window.bind('<Button 1>', start_making)
     else:
         image_does_not_exist_msg()
@@ -183,14 +197,23 @@ def invert_img():
     else:
         image_does_not_exist_msg()
 
-resize_window_open= False
-def resize_img(parent):
+
+resize_window = None
+def resize_img():
+    not_done_msg()
+    return
     if current_img:
-        global resize_window_open
-        if not resize_window_open:
-            resize_window= Toplevel(img_window, width=400, height= 200)
+        global resize_window, resize_window
+        if not resize_window:
+            resize_window = Toplevel(img_window)
+            resize_window.geometry("300x150")
             resize_window.resizable(0, 0)
-            resize_window_open= True
+            Label(resize_window, text= "Width").grid(row=0, column=0, padx= 10, pady= 10)
+            width= Entry(resize_window)
+            Label(resize_window, text= "Height").grid(row=1, column=0, padx= 10)
+        else :    
+            resize_window.destroy()
+            resize_window= None
     else:
         image_does_not_exist_msg()
 
@@ -204,6 +227,7 @@ def undo(event=None):
     else:
         image_does_not_exist_msg()
 
+
 def redo(event=None):
     global current
     if current_img:
@@ -212,6 +236,7 @@ def redo(event=None):
             change_img(history_data[current], False)
     else:
         image_does_not_exist_msg()
+
 
 def select_path(type):
     filename = ""
@@ -240,7 +265,7 @@ def open_img(event=None):
         if img:
             global current
             history_data.clear()
-            current= -1
+            current = -1
             change_img(img)
 
 
@@ -252,19 +277,24 @@ def save_img(event=None):
     else:
         image_does_not_exist_msg()
 
+
 def quit(parent):
-    if len(history_data)>1:
-        ans= messagebox.askyesnocancel("Imagify", "Do you want to save your changes?", icon='warning')
-        if ans==True:
+    if len(history_data) > 1:
+        ans = messagebox.askyesnocancel(
+            "Imagify", "Do you want to save your changes?", icon='warning')
+        if ans == True:
             save_img()
-        elif ans==False:
+        elif ans == False:
             parent.destroy()
     elif messagebox.askokcancel("Imagify", "Do you want to quit?", icon='warning'):
         parent.destroy()
 
+
 def about():
     messagebox.showinfo(
         title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay", font=("Monospace", 15))
+
+
 def not_done_msg():
     messagebox.showinfo(
         title="Imagify", message="This feature is not done yet.")
