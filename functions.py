@@ -80,7 +80,9 @@ def finished(event):
     for i in range(np1[0], np2[0], dx):
         y = 0
         for j in range(np1[1], np2[1], dy):
-            cropped_img.putpixel((x, y), i_data[i, j])
+            x0= x if dx==1 else abs(width)-x-1
+            y0= y if dy==1 else abs(height)-y-1
+            cropped_img.putpixel((x0, y0), i_data[i, j])
             y += 1
         x += 1
         
