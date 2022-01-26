@@ -47,7 +47,7 @@ help_menu.add_command(label="About", command=fns.about)
 
 i_f_w = height - 140
 i_f_h = int(i_f_w*1.55)
-c1_width = width - i_f_h - 60
+main_frame_width = width - i_f_h - 60
 
 # creating basic layout
 img_window_frame = Frame(root, bg="#001", width=i_f_h, height=i_f_w)
@@ -61,21 +61,21 @@ fns.set_img_window(img_window, i_f_h, i_f_w)
 fns.change_img(Image.open("images/default.jpg"))
 
 imagify_frame = Frame(root, border=3, borderwidth=5, padx=10, pady=10,
-                      width=c1_width, height=125, cursor="heart", relief=RIDGE)
+                      width=main_frame_width, height=125, cursor="heart", relief=RIDGE)
 imagify_frame.grid(row=0, column=1, padx=10, pady=(
     10, 0), ipadx=5, ipady=5, sticky=N)
 
 color_1 = "#041a3d"
 color_2 = "#fff3b8"
 
-middle_frame_height = height/6
+middle_frame_height = height*.15
 middle_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
-                     pady=10, width=c1_width, height=middle_frame_height, relief=RIDGE)
+                     pady=10, width=main_frame_width, height=middle_frame_height, relief=RIDGE)
 middle_frame.grid(row=1, column=1, padx=10, pady=(
     10, 0), ipadx=5, ipady=5, sticky=N)
 
 main_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
-                   pady=20, width=c1_width, height=height - 340 - middle_frame_height, relief=RIDGE)
+                   pady=20, width=main_frame_width, height=height - 340 - middle_frame_height, relief=RIDGE)
 main_frame.grid(row=2, column=1, padx=10, pady=(5, 0))
 
 # importing images
@@ -110,7 +110,7 @@ btn_type1.append(save_image_btn)
 Label(middle_frame, text="-"*50, font=('Consolas')
       ).grid(row=1, column=0, columnspan=4)
 
-crop_btn = Button(middle_frame, image=my_images.crop_rotate_img,
+crop_btn = Button(middle_frame, image=my_images.crop_img,
                   command=fns.crop_img)
 crop_btn.grid(row=2, column=0, pady=(10, 0))
 Label(middle_frame, text="Crop").grid(row=3, column=0)
@@ -153,7 +153,8 @@ rotate_c_btn = Button(
     main_frame, image=my_images.rotate_c_img, command=fns.rotate_c_img)
 rotate_c_btn.grid(row=2, column=1)
 
-Label(main_frame, text="Rotate").grid(row=3, column=0, columnspan=2)
+Label(main_frame, text="Rotate").grid(
+    row=3, column=0, columnspan=2)
 
 flip_h_btn = Button(main_frame, image=my_images.flip_h_img,
                     command=fns.flip_h_img)
@@ -163,20 +164,48 @@ flip_v_btn = Button(main_frame, image=my_images.flip_v_img,
                     command=fns.flip_v_img)
 flip_v_btn.grid(row=2, column=3)
 
-Label(main_frame, text="Flip").grid(row=3, column=2, columnspan=2)
+Label(main_frame, text="Flip").grid(
+    row=3, column=2, columnspan=2)
 
-Label(main_frame, text="-"*50, font=('Consolas')
+Label(main_frame, text="-"*50,
       ).grid(row=4, column=0, columnspan=4)
+
 
 invert_btn = Button(main_frame, image=my_images.invert_img,
                     command=fns.invert_img)
 invert_btn.grid(row=5, column=0, pady=(20, 0))
-Label(main_frame, text="Invert\nColor").grid(row=6, column=0)
+Label(main_frame, text="Invert\nColor", font=(
+    'Consolas', 11)).grid(row=6, column=0)
 
+black_n_white_btn = Button(main_frame, image=my_images.black_n_white_img,
+                           command=fns.black_n_white_img)
+black_n_white_btn.grid(row=5, column=1, pady=(20, 0))
+Label(main_frame, text="B & W").grid(row=6, column=1)
 
+brightnesss_scale = Scale(main_frame, orient=HORIZONTAL, label='Brightness', from_=-50, to=50,
+                          showvalue=False, length=main_frame_width*.7, command=fns.update_brightness)
+brightnesss_scale.grid(row=7, column=0, pady=(20, 0), columnspan=4)
+fns.scales.append(brightnesss_scale)
+
+contrast_scale = Scale(main_frame, orient=HORIZONTAL, label='Contrast', from_=-50, to=50,
+                       showvalue=False, length=main_frame_width*.7, command=fns.update_contrast)
+contrast_scale.grid(row=8, column=0, pady=(10, 0), columnspan=4)
+fns.scales.append(contrast_scale)
+
+sharpness_scale = Scale(main_frame, orient=HORIZONTAL, label='Sharpness', from_=-50, to=50,
+                        showvalue=False, length=main_frame_width*.7, command=fns.update_sharpness)
+sharpness_scale.grid(row=9, column=0, pady=(10, 0), columnspan=4)
+fns.scales.append(sharpness_scale)
+
+color_scale = Scale(main_frame, orient=HORIZONTAL, label='Color', from_=-50, to=50,
+                    showvalue=False, length=main_frame_width*.7, command=fns.update_color)
+color_scale.grid(row=10, column=0, pady=(10, 0), columnspan=4)
+fns.scales.append(color_scale)
+
+for s in fns.scales:
+    s.bind('<ButtonRelease 1>', fns.apply_effect)
 for w in main_frame.winfo_children():
-    w.configure(font=('Consolas', 11), border=0,
-                background=color_1, fg=color_2)
+    w.configure(font=('Consolas', 11), border=0, background=color_1, fg=color_2)
 
 # setting every frame non-resizable
 for w in root.winfo_children():

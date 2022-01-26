@@ -1,0 +1,2 @@
+
+    s.bind('<ButtonRelease 

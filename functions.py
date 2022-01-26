@@ -1,5 +1,6 @@
 from tkinter import *
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageEnhance
+from PIL.ImageFilter import *
 from tkinter import filedialog, messagebox
 
 img_window = None
@@ -17,7 +18,7 @@ def set_img_window(i_w, w_w, w_h):
     i_f_h = w_h
 
 
-def change_img(new_img, add_in_history=True):
+def change_img(new_img, add_in_history=True, update=True):
     # if a very large image is given then resize
     i_w, i_h = new_img.size
     if i_w > 1400:
@@ -36,14 +37,15 @@ def change_img(new_img, add_in_history=True):
         in_w = i_f_w
         in_h = int(i_h/w_s)
 
-    current_img = new_img
+    if update:
+        current_img = new_img
     if add_in_history:
         for e in history_data[current+1:]:
             history_data.remove(e)
-        history_data.append(current_img)
+        history_data.append(new_img)
         current += 1
 
-    photo = ImageTk.PhotoImage(current_img.resize((in_w, in_h)))
+    photo = ImageTk.PhotoImage(new_img.resize((in_w, in_h)))
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
 
@@ -54,11 +56,11 @@ def origional(cord):
 
 
 def valid(a, b):
-    w= abs(b[0]-a[0])
-    h= abs(b[1]-a[1])
+    w = abs(b[0]-a[0])
+    h = abs(b[1]-a[1])
     center = [(b[0]+a[0])/2, (b[1]+a[1])/2]
-    a= (center[0]-w/2, center[1]-h/2)
-    b= (center[0]+w/2, center[1]+h/2)
+    a = (center[0]-w/2, center[1]-h/2)
+    b = (center[0]+w/2, center[1]+h/2)
     return origional(a) + origional(b)
 
 
@@ -112,7 +114,7 @@ def crop_img(area=None):
             messagebox.showinfo(title="Imagify",
                                 message="Select area for crop")
             img_window.bind(
-                '<Button 1>', lambda event: start_selection(event, crop_img))
+                '<Button-1>', lambda event: start_selection(event, crop_img))
         else:
             cropped_img = current_img.crop(area)
             change_img(cropped_img)
@@ -152,6 +154,15 @@ def flip_v_img():
         image_does_not_exist_msg()
 
 
+def pmap(x, x1, x2, y1, y2):
+    m = (y1-y2)/(x1-x2)
+    return m*(x - x1) + y1
+
+
+# effects addition
+effects = [BLUR, CONTOUR, DETAIL, EDGE_ENHANCE, EDGE_ENHANCE_MORE,
+           EMBOSS, FIND_EDGES, SMOOTH, SMOOTH_MORE, SHARPEN]
+# MaxFilter(3)
 def invert(c): return (255-c[0], 255-c[1], 255-c[2])
 
 
@@ -168,6 +179,74 @@ def invert_img():
         image_does_not_exist_msg()
 
 
+def black_n_white_img():
+    new_img = ImageEnhance.Color(current_img)
+    new_img = new_img.enhance(0)
+    change_img(new_img)
+
+filtered_img= None
+scales= []
+def update_brightness(val):
+    val = float(val)
+    if val > 0:
+        val = pmap(val, 0, 50, 1, 3)
+    else:
+        val = pmap(val, -50, 0, 0, 1)
+
+    global filtered_img
+    if filtered_img is None:
+        filtered_img= current_img
+    filtered_img = ImageEnhance.Brightness(current_img)
+    filtered_img = filtered_img.enhance(val)
+    change_img(filtered_img, add_in_history=False, update=False)
+
+
+def update_contrast(val):
+    val = float(val)
+    if val > 0:
+        val = pmap(val, 0, 50, 1, 3)
+    else:
+        val = pmap(val, -50, 0, 0.5, 1)
+
+    global filtered_img
+    if filtered_img is None:
+        filtered_img= current_img
+    filtered_img = ImageEnhance.Contrast(current_img)
+    filtered_img = filtered_img.enhance(val)
+    change_img(filtered_img, add_in_history=False, update=False)
+
+
+def update_sharpness(val):
+    val = float(val)
+    if val > 0:
+        val = pmap(val, 0, 50, 1, 5)
+    else:
+        val = pmap(val, -50, 0, -1, 1)
+        
+    global filtered_img
+    if filtered_img is None:
+        filtered_img= current_img
+    filtered_img = ImageEnhance.Sharpness(current_img)
+    filtered_img = filtered_img.enhance(val)
+    change_img(filtered_img, add_in_history=False, update=False)
+
+
+def update_color(val):
+    val = pmap(float(val), -50, 50, 0, 2)
+    global filtered_img
+    if filtered_img is None:
+        filtered_img= current_img
+    filtered_img = ImageEnhance.Color(current_img)
+    filtered_img = filtered_img.enhance(val)
+    change_img(filtered_img, add_in_history=False, update=False)
+
+def apply_effect(event=None):
+    global filtered_img
+    change_img(filtered_img)
+    filtered_img= None
+    for s in scales:
+        s.set(0)
+
 resize_window = None
 
 
@@ -177,7 +256,7 @@ def resize(w, h):
         height = h.get()
         if width <= 0 or height <= 0 or width > 2000 or height > 2000:
             messagebox.showerror(title="Imagify",
-                                 message="Please enter 1 to 2000.")
+                                 message="Please enter from 1 to 2000.")
             resize_window.focus()
         else:
             resize_window.destroy()
@@ -244,7 +323,7 @@ def undo(event=None):
     if current_img:
         if current - 1 >= 0:
             current -= 1
-            change_img(history_data[current], False)
+            change_img(history_data[current], add_in_history=False)
     else:
         image_does_not_exist_msg()
 
@@ -254,7 +333,7 @@ def redo(event=None):
     if current_img:
         if current + 1 < len(history_data):
             current += 1
-            change_img(history_data[current], False)
+            change_img(history_data[current], add_in_history=False)
     else:
         image_does_not_exist_msg()
 
