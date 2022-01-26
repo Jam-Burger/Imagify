@@ -1,1 +1,0 @@
-root.protocol("WM_DELETE_WINDOW", lambda: fns.quit(root))
