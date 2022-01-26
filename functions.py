@@ -1,4 +1,3 @@
-from msilib.schema import CheckBox
 from tkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog, messagebox
@@ -48,29 +47,39 @@ def change_img(new_img, add_in_history=True):
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
 
-p1 = None
-p2 = None
+
+def origional(cord):
+    i_w, i_h = current_img.size
+    return (int(cord[0]/in_w*i_w), int(cord[1]/in_h*i_h))
+
+
+def valid(a, b):
+    w= abs(b[0]-a[0])
+    h= abs(b[1]-a[1])
+    center = [(b[0]+a[0])/2, (b[1]+a[1])/2]
+    a= (center[0]-w/2, center[1]-h/2)
+    b= (center[0]+w/2, center[1]+h/2)
+    return origional(a) + origional(b)
+
+
 rect = c1 = c2 = None
 
-def finished(event):
+
+def end_selection(cmd):
     img_window.unbind('<ButtonRelease-1>')
     img_window.unbind('<B1-Motion>')
     img_window.unbind('<Button 1>')
-    if rect:
-        img_window.delete(rect, c1, c2)
-    i_w, i_h = current_img.size
+    global rect
+    cmd(valid(p1, p2))
+    img_window.delete(rect, c1, c2)
+    rect = None
 
-    np1 = (int(p1[0]/in_w*i_w), int(p1[1]/in_h*i_h))
-    np2 = (int(p2[0]/in_w*i_w), int(p2[1]/in_h*i_h))
 
-    cropped_img = current_img.crop(np1+np2)
-    change_img(cropped_img)
-
-def move_p2(event):
+def expand_selection(event, cmd):
     global p2, rect, c1, c2
     iw_w = img_window.winfo_width()
     iw_h = img_window.winfo_height()
-    p2 = (event.x, event.y)
+    p2 = [event.x, event.y]
     if p2[0] < 0:
         p2[0] = 0
     elif p2[0] > iw_w - 1:
@@ -88,27 +97,32 @@ def move_p2(event):
         x1, y1, x2, y2, outline='white', width=3)
     c1 = img_window.create_oval(x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill='black')
     c2 = img_window.create_oval(x2 - 5, y2 - 5, x2 + 5, y2 + 5, fill='black')
-    img_window.bind('<ButtonRelease-1>', finished)
+    img_window.bind('<ButtonRelease-1>', lambda event: end_selection(cmd))
 
 
-def start_making(event):
+def start_selection(event, cmd):
     global p1, p2
-    p1 = p2 = (event.x, event.y)
-    img_window.bind('<B1-Motion>', move_p2)
+    p1 = p2 = [event.x, event.y]
+    img_window.bind('<B1-Motion>', lambda event: expand_selection(event, cmd))
 
 
-def crop_img():
+def crop_img(area=None):
     if current_img:
-        messagebox.showinfo(title="Crop Instruction",
-                            message="Select area for crop")
-        img_window.bind('<Button 1>', start_making)
+        if not area:
+            messagebox.showinfo(title="Imagify",
+                                message="Select area for crop")
+            img_window.bind(
+                '<Button 1>', lambda event: start_selection(event, crop_img))
+        else:
+            cropped_img = current_img.crop(area)
+            change_img(cropped_img)
     else:
         image_does_not_exist_msg()
 
 
 def rotate_a_img():
     if current_img:
-        rotated_img= current_img.rotate(90, expand= 1)
+        rotated_img = current_img.rotate(90, expand=1)
         change_img(rotated_img)
     else:
         image_does_not_exist_msg()
@@ -116,7 +130,7 @@ def rotate_a_img():
 
 def rotate_c_img():
     if current_img:
-        rotated_img= current_img.rotate(-90, expand= 1)
+        rotated_img = current_img.rotate(-90, expand=1)
         change_img(rotated_img)
     else:
         image_does_not_exist_msg()
@@ -124,7 +138,7 @@ def rotate_c_img():
 
 def flip_h_img():
     if current_img:
-        flipped_img= current_img.transpose(Image.FLIP_LEFT_RIGHT)
+        flipped_img = current_img.transpose(Image.FLIP_LEFT_RIGHT)
         change_img(flipped_img)
     else:
         image_does_not_exist_msg()
@@ -132,7 +146,7 @@ def flip_h_img():
 
 def flip_v_img():
     if current_img:
-        flipped_img= current_img.transpose(Image.FLIP_TOP_BOTTOM)
+        flipped_img = current_img.transpose(Image.FLIP_TOP_BOTTOM)
         change_img(flipped_img)
     else:
         image_does_not_exist_msg()
@@ -175,20 +189,22 @@ def resize(w, h):
         resize_window.focus()
 
 
-var= width= height = None
+var = width = height = None
 
 
 def aspect_ratio(height_entry):
     try:
         if var.get():
-            height_entry.configure(state= DISABLED)
-            height.set(int(width.get()*current_img.size[1]/current_img.size[0]))
+            height_entry.configure(state=DISABLED)
+            height.set(
+                int(width.get()*current_img.size[1]/current_img.size[0]))
         else:
-            height_entry.configure(state= NORMAL)
+            height_entry.configure(state=NORMAL)
     except:
         messagebox.showerror(title="Imagify",
                              message="Please enter valid input.")
         resize_window.focus()
+
 
 def resize_img():
     if current_img:
@@ -213,7 +229,7 @@ def resize_img():
         height_entry = Entry(resize_window, textvariable=height, width=10)
         height_entry.grid(
             row=1, column=1, padx=10, pady=10, sticky=W)
-        width_entry.configure(invcmd= lambda: aspect_ratio(height_entry))
+        width_entry.configure(invcmd=lambda: aspect_ratio(height_entry))
         var = IntVar(value=0)
         Checkbutton(resize_window, text="Keep Aspect Ratio", variable=var, command=lambda: aspect_ratio(height_entry)).grid(
             row=2, column=0, padx=10, pady=10, sticky=W)
