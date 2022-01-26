@@ -48,16 +48,9 @@ def change_img(new_img, add_in_history=True):
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
 
-
-def change_frame(parent, frame):
-    pass
-
-
 p1 = None
 p2 = None
-
 rect = c1 = c2 = None
-
 
 def finished(event):
     img_window.unbind('<ButtonRelease-1>')
@@ -70,26 +63,8 @@ def finished(event):
     np1 = (int(p1[0]/in_w*i_w), int(p1[1]/in_h*i_h))
     np2 = (int(p2[0]/in_w*i_w), int(p2[1]/in_h*i_h))
 
-    i_data = current_img.load()
-    width = np2[0] - np1[0]
-    height = np2[1] - np1[1]
-    dx = 0 if width == 0 else int(abs(width)/width)
-    dy = 0 if height == 0 else int(abs(height)/height)
-
-    cropped_img = Image.new(current_img.mode, (abs(width), abs(height)))
-
-    x = 0
-    for i in range(np1[0], np2[0], dx):
-        y = 0
-        for j in range(np1[1], np2[1], dy):
-            x0 = x if dx == 1 else abs(width)-x-1
-            y0 = y if dy == 1 else abs(height)-y-1
-            cropped_img.putpixel((x0, y0), i_data[i, j])
-            y += 1
-        x += 1
-
+    cropped_img = current_img.crop(np1+np2)
     change_img(cropped_img)
-
 
 def move_p2(event):
     global p2, rect, c1, c2
@@ -133,12 +108,7 @@ def crop_img():
 
 def rotate_a_img():
     if current_img:
-        i_data = current_img.load()
-        width, height = current_img.size
-        rotated_img = Image.new(current_img.mode, (height, width))
-        for i in range(width):
-            for j in range(height):
-                rotated_img.putpixel((j, width-i-1), i_data[i, j])
+        rotated_img= current_img.rotate(90, expand= 1)
         change_img(rotated_img)
     else:
         image_does_not_exist_msg()
@@ -146,12 +116,7 @@ def rotate_a_img():
 
 def rotate_c_img():
     if current_img:
-        i_data = current_img.load()
-        width, height = current_img.size
-        rotated_img = Image.new(current_img.mode, (height, width))
-        for i in range(width):
-            for j in range(height):
-                rotated_img.putpixel((height-j-1, i), i_data[i, j])
+        rotated_img= current_img.rotate(-90, expand= 1)
         change_img(rotated_img)
     else:
         image_does_not_exist_msg()
@@ -159,12 +124,7 @@ def rotate_c_img():
 
 def flip_h_img():
     if current_img:
-        i_data = current_img.load()
-        width, height = current_img.size
-        flipped_img = Image.new(current_img.mode, (width, height))
-        for i in range(width):
-            for j in range(height):
-                flipped_img.putpixel((width-i-1, j), i_data[i, j])
+        flipped_img= current_img.transpose(Image.FLIP_LEFT_RIGHT)
         change_img(flipped_img)
     else:
         image_does_not_exist_msg()
@@ -172,12 +132,7 @@ def flip_h_img():
 
 def flip_v_img():
     if current_img:
-        i_data = current_img.load()
-        width, height = current_img.size
-        flipped_img = Image.new(current_img.mode, (width, height))
-        for i in range(width):
-            for j in range(height):
-                flipped_img.putpixel((i, height-j-1), i_data[i, j])
+        flipped_img= current_img.transpose(Image.FLIP_TOP_BOTTOM)
         change_img(flipped_img)
     else:
         image_does_not_exist_msg()

@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter import messagebox
 from PIL import Image
 
 import functions as fns
@@ -111,12 +110,6 @@ btn_type1.append(save_image_btn)
 Label(middle_frame, text="-"*50, font=('Consolas')
       ).grid(row=1, column=0, columnspan=4)
 
-# crop_rotate_btn = Button(main_frame, image=my_images.crop_rotate_img,
-#                          command=lambda: fns.change_frame(dynamic_frame, crop_rotate_frame))
-# crop_rotate_btn.grid(row=2, column=0, pady=(20, 0))
-# Label(main_frame, text="Crop&\nRotate").grid(row=5, column=0)
-# btn_type2.append(crop_rotate_btn)
-
 crop_btn = Button(middle_frame, image=my_images.crop_rotate_img,
                   command=fns.crop_img)
 crop_btn.grid(row=2, column=0, pady=(10, 0))
@@ -132,12 +125,6 @@ redo_btn = Button(middle_frame, image=my_images.redo_img, command=fns.redo)
 redo_btn.grid(row=2, column=2, pady=(10, 0))
 Label(middle_frame, text="Redo").grid(row=3, column=2)
 btn_type2.append(redo_btn)
-
-# adjust_btn = Button(main_frame, image=my_images.adjust_img,
-#                     command=lambda: fns.change_frame(dynamic_frame, adjust_frame))
-# adjust_btn.grid(row=2, column=3, pady=(20, 0))
-# Label(main_frame, text="Adjust").grid(row=5, column=3)
-# btn_type2.append(adjust_btn)
 
 resize_btn = Button(middle_frame, image=my_images.resize_img,
                     command=fns.resize_img)
@@ -190,6 +177,7 @@ Label(main_frame, text="Invert\nColor").grid(row=6, column=0)
 for w in main_frame.winfo_children():
     w.configure(font=('Consolas', 11), border=0,
                 background=color_1, fg=color_2)
+
 # setting every frame non-resizable
 for w in root.winfo_children():
     w.grid_propagate(0)
