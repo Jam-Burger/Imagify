@@ -182,30 +182,41 @@ black_n_white_btn = Button(main_frame, image=my_images.black_n_white_img,
 black_n_white_btn.grid(row=5, column=1, pady=(20, 0))
 Label(main_frame, text="B & W").grid(row=6, column=1)
 
-brightnesss_scale = Scale(main_frame, orient=HORIZONTAL, label='Brightness', from_=-50, to=50,
-                          showvalue=False, length=main_frame_width*.7, command=fns.update_brightness)
-brightnesss_scale.grid(row=7, column=0, pady=(20, 0), columnspan=4)
+effects_btn = Button(main_frame, image=my_images.effects_img,
+                     command=fns.effects)
+effects_btn.grid(row=5, column=2, pady=(20, 0))
+Label(main_frame, text="Effects").grid(row=6, column=2)
+
+Label(main_frame, text="-"*50,
+      ).grid(row=7, column=0, columnspan=4)
+
+brightnesss_scale = Scale(main_frame, label='Brightness',
+                          command=fns.update_brightness)
+brightnesss_scale.grid(row=8, column=0, pady=(20, 0), columnspan=4)
 fns.scales.append(brightnesss_scale)
 
-contrast_scale = Scale(main_frame, orient=HORIZONTAL, label='Contrast', from_=-50, to=50,
-                       showvalue=False, length=main_frame_width*.7, command=fns.update_contrast)
-contrast_scale.grid(row=8, column=0, pady=(10, 0), columnspan=4)
+contrast_scale = Scale(main_frame, label='Contrast',
+                       command=fns.update_contrast)
+contrast_scale.grid(row=9, column=0, pady=(10, 0), columnspan=4)
 fns.scales.append(contrast_scale)
 
-sharpness_scale = Scale(main_frame, orient=HORIZONTAL, label='Sharpness', from_=-50, to=50,
-                        showvalue=False, length=main_frame_width*.7, command=fns.update_sharpness)
-sharpness_scale.grid(row=9, column=0, pady=(10, 0), columnspan=4)
+sharpness_scale = Scale(main_frame, label='Sharpness',
+                        command=fns.update_sharpness)
+sharpness_scale.grid(row=10, column=0, pady=(10, 0), columnspan=4)
 fns.scales.append(sharpness_scale)
 
-color_scale = Scale(main_frame, orient=HORIZONTAL, label='Color', from_=-50, to=50,
-                    showvalue=False, length=main_frame_width*.7, command=fns.update_color)
-color_scale.grid(row=10, column=0, pady=(10, 0), columnspan=4)
+color_scale = Scale(main_frame, label='Color', command=fns.update_color)
+color_scale.grid(row=11, column=0, pady=(10, 0), columnspan=4)
 fns.scales.append(color_scale)
 
 for s in fns.scales:
-    s.bind('<ButtonRelease 1>', fns.apply_effect)
+    s.configure(orient=HORIZONTAL, from_=-50, to=50,
+                showvalue=False, length=main_frame_width*.7)
+    s.bind('<ButtonRelease 1>', fns.apply_enhance)
+
 for w in main_frame.winfo_children():
-    w.configure(font=('Consolas', 11), border=0, background=color_1, fg=color_2)
+    w.configure(font=('Consolas', 11), border=0,
+                background=color_1, fg=color_2)
 
 # setting every frame non-resizable
 for w in root.winfo_children():

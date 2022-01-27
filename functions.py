@@ -1,5 +1,5 @@
 from tkinter import *
-from PIL import Image, ImageTk, ImageEnhance
+from PIL import Image, ImageTk, ImageEnhance, ImageOps
 from PIL.ImageFilter import *
 from tkinter import filedialog, messagebox
 
@@ -18,6 +18,20 @@ def set_img_window(i_w, w_w, w_h):
     i_f_h = w_h
 
 
+def fit_image(img, w, h):
+    i_w, i_h = img.size
+    w_s = i_w/w
+    h_s = i_h/h
+    global in_w, in_h
+    if w_s < h_s:
+        in_w = int(i_w/h_s)
+        in_h = h
+    else:
+        in_w = w
+        in_h = int(i_h/w_s)
+    return img.resize((in_w, in_h))
+
+
 def change_img(new_img, add_in_history=True, update=True):
     # if a very large image is given then resize
     i_w, i_h = new_img.size
@@ -26,17 +40,7 @@ def change_img(new_img, add_in_history=True, update=True):
     elif i_h > 1400:
         new_img = new_img.resize((int(1400*i_w/i_h), 1400))
 
-    i_w, i_h = new_img.size
-    global current_img, photo, current, in_w, in_h
-    w_s = i_w/i_f_w
-    h_s = i_h/i_f_h
-    if w_s < h_s:
-        in_w = int(i_w/h_s)
-        in_h = i_f_h
-    else:
-        in_w = i_f_w
-        in_h = int(i_h/w_s)
-
+    global current_img, photo, current
     if update:
         current_img = new_img
     if add_in_history:
@@ -44,8 +48,9 @@ def change_img(new_img, add_in_history=True, update=True):
             history_data.remove(e)
         history_data.append(new_img)
         current += 1
+    new_img = fit_image(new_img, i_f_w, i_f_h)
 
-    photo = ImageTk.PhotoImage(new_img.resize((in_w, in_h)))
+    photo = ImageTk.PhotoImage(new_img)
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
 
@@ -160,20 +165,70 @@ def pmap(x, x1, x2, y1, y2):
 
 
 # effects addition
-effects = [BLUR, CONTOUR, DETAIL, EDGE_ENHANCE, EDGE_ENHANCE_MORE,
-           EMBOSS, FIND_EDGES, SMOOTH, SMOOTH_MORE, SHARPEN]
+effects_list = {'None': NONE, 'Blur': BLUR, 'Contour': CONTOUR, 'Detail': DETAIL, 'Edge Enhance': EDGE_ENHANCE, 'Edge Enhance More': EDGE_ENHANCE_MORE,
+                'Emboss': EMBOSS, 'Find Edges': FIND_EDGES, 'Smooth': SMOOTH, 'Smooth More': SMOOTH_MORE, 'Sharpen': SHARPEN, 'Max-Filter': MaxFilter(size=3), 'Min-Filter': MinFilter(size=3)}
+effects_images = []
 # MaxFilter(3)
 def invert(c): return (255-c[0], 255-c[1], 255-c[2])
 
 
+sample_img = Image.open("images/sample.jpg")
+
+
+class SampleImage:
+    def __init__(self, effect, row, column):
+        self.effect = effect
+        self.row = row
+        self.column = column
+
+    def show(self):
+        global image
+        image = sample_img.resize((150, 150))
+        if self.effect != 'None':
+            image = image.filter(effects_list[self.effect])
+        image = ImageTk.PhotoImage(image)
+        effects_images.append(image)
+
+        frame = Frame(effect_window, padx=10, pady=10)
+        frame.grid(row=self.row, column=self.column)
+        img_label = Label(frame, image=image)
+        img_label.pack()
+        img_label.bind(
+            '<Button 1>', func=lambda event: apply_effect(self.effect))
+        Label(frame, text=self.effect).pack()
+
+
+effect_window = None
+
+
+def apply_effect(effect):
+    effect = effects_list[effect]
+    change_img(current_img.filter(effect))
+    effect_window.destroy()
+
+
+def effects():
+    global effect_window
+    if effect_window:
+        effect_window.destroy()
+    effect_window = Toplevel(img_window)
+    effect_window.title("Effects")
+    effect_window.resizable(0, 0)
+    effect_window.focus()
+    effects_images.clear()
+
+    row = column = 0
+    for eff in effects_list:
+        SampleImage(eff, row, column).show()
+        column += 1
+        if column % 5 == 0:
+            row += 1
+            column = 0
+
+
 def invert_img():
     if current_img:
-        i_data = current_img.load()
-        width, height = current_img.size
-        inverted_img = Image.new(current_img.mode, (width, height))
-        for i in range(width):
-            for j in range(height):
-                inverted_img.putpixel((i, j), invert(i_data[i, j]))
+        inverted_img= ImageOps.invert(current_img)
         change_img(inverted_img)
     else:
         image_does_not_exist_msg()
@@ -184,8 +239,11 @@ def black_n_white_img():
     new_img = new_img.enhance(0)
     change_img(new_img)
 
-filtered_img= None
-scales= []
+
+filtered_img = None
+scales = []
+
+
 def update_brightness(val):
     val = float(val)
     if val > 0:
@@ -195,7 +253,7 @@ def update_brightness(val):
 
     global filtered_img
     if filtered_img is None:
-        filtered_img= current_img
+        filtered_img = current_img
     filtered_img = ImageEnhance.Brightness(current_img)
     filtered_img = filtered_img.enhance(val)
     change_img(filtered_img, add_in_history=False, update=False)
@@ -210,7 +268,7 @@ def update_contrast(val):
 
     global filtered_img
     if filtered_img is None:
-        filtered_img= current_img
+        filtered_img = current_img
     filtered_img = ImageEnhance.Contrast(current_img)
     filtered_img = filtered_img.enhance(val)
     change_img(filtered_img, add_in_history=False, update=False)
@@ -222,10 +280,10 @@ def update_sharpness(val):
         val = pmap(val, 0, 50, 1, 5)
     else:
         val = pmap(val, -50, 0, -1, 1)
-        
+
     global filtered_img
     if filtered_img is None:
-        filtered_img= current_img
+        filtered_img = current_img
     filtered_img = ImageEnhance.Sharpness(current_img)
     filtered_img = filtered_img.enhance(val)
     change_img(filtered_img, add_in_history=False, update=False)
@@ -235,19 +293,18 @@ def update_color(val):
     val = pmap(float(val), -50, 50, 0, 2)
     global filtered_img
     if filtered_img is None:
-        filtered_img= current_img
+        filtered_img = current_img
     filtered_img = ImageEnhance.Color(current_img)
     filtered_img = filtered_img.enhance(val)
     change_img(filtered_img, add_in_history=False, update=False)
 
-def apply_effect(event=None):
+
+def apply_enhance(event=None):
     global filtered_img
     change_img(filtered_img)
-    filtered_img= None
+    filtered_img = None
     for s in scales:
         s.set(0)
-
-resize_window = None
 
 
 def resize(w, h):
@@ -285,6 +342,9 @@ def aspect_ratio(height_entry):
         resize_window.focus()
 
 
+resize_window = None
+
+
 def resize_img():
     if current_img:
         global resize_window
@@ -292,8 +352,10 @@ def resize_img():
             resize_window.destroy()
 
         resize_window = Toplevel(img_window)
+        resize_window.title("Resize")
         resize_window.geometry("300x150")
         resize_window.resizable(0, 0)
+        resize_window.focus()
         Label(resize_window, text="Width").grid(
             row=0, column=0, padx=10, pady=10)
         Label(resize_window, text="Height").grid(row=1, column=0, padx=10)

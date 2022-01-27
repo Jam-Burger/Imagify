@@ -22,6 +22,7 @@ class Images:
 
         self.black_n_white_img = tk_img("images/b_n_w.png", icon_size)
         self.invert_img = tk_img("images/invert.png", icon_size)
+        self.effects_img = tk_img("images/effects.png", icon_size)
 
         self.undo_img = tk_img("images/undo.png", icon_size)
         self.redo_img = tk_img("images/redo.png", icon_size)
