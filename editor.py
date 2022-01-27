@@ -1,8 +1,11 @@
 from tkinter import *
 from PIL import Image
+from pip import main
 
 import functions as fns
 from resources import Images
+import design
+from design import LabeledButton, Line, DoubleLabledButton, Slider
 import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
@@ -40,6 +43,11 @@ edit_menu.add_command(label="Undo", command=fns.undo, accelerator="Ctrl+Z")
 root.bind('<Control-z>', fns.undo)
 edit_menu.add_command(label="Redo", command=fns.redo, accelerator="Ctrl+Y")
 root.bind('<Control-y>', fns.redo)
+edit_menu.add_separator()
+edit_menu.add_command(label="Copy", command=fns.copy, accelerator="Ctrl+C")
+root.bind('<Control-c>', fns.copy)
+edit_menu.add_command(label="Paste", command=fns.paste, accelerator="Ctrl+V")
+root.bind('<Control-v>', fns.paste)
 
 help_menu = Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Help", menu=help_menu)
@@ -65,8 +73,8 @@ imagify_frame = Frame(root, border=3, borderwidth=5, padx=10, pady=10,
 imagify_frame.grid(row=0, column=1, padx=10, pady=(
     10, 0), ipadx=5, ipady=5, sticky=N)
 
-color_1 = "#041a3d"
-color_2 = "#fff3b8"
+color_1 = design.color_1
+color_2 = design.color_2
 
 middle_frame_height = height*.15
 middle_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
@@ -92,131 +100,54 @@ Label(imagify_frame, text="Imagify", font=('Comic Sans MS bold', 20)).grid(
 Label(imagify_frame, text="By Jam-Burger", font=('Comic Sans MS', 10)
       ).grid(row=1, column=1, padx=5)
 
-# adding buttons
+# adding stuff in middle_frame
 for i in range(4):
     middle_frame.columnconfigure(i, weight=1)
-
-btn_type1 = []
-btn_type2 = []
-
-open_image_btn = Button(
-    middle_frame, text="Open Image", command=fns.open_img)
+open_image_btn = Label(middle_frame, text="Open Image")
 open_image_btn.grid(row=0, column=0, columnspan=2)
-btn_type1.append(open_image_btn)
+open_image_btn.bind('<Button 1>', fns.open_img)
 
-save_image_btn = Button(middle_frame, text="Save Image", command=fns.save_img)
+save_image_btn = Label(middle_frame, text="Save Image")
 save_image_btn.grid(row=0, column=2, columnspan=2)
-btn_type1.append(save_image_btn)
-Label(middle_frame, text="-"*50, font=('Consolas')
-      ).grid(row=1, column=0, columnspan=4)
+save_image_btn.bind('<Button 1>', fns.save_img)
 
-crop_btn = Button(middle_frame, image=my_images.crop_img,
-                  command=fns.crop_img)
-crop_btn.grid(row=2, column=0, pady=(10, 0))
-Label(middle_frame, text="Crop").grid(row=3, column=0)
-btn_type2.append(crop_btn)
-
-undo_btn = Button(middle_frame, image=my_images.undo_img, command=fns.undo)
-undo_btn.grid(row=2, column=1, pady=(10, 0))
-Label(middle_frame, text="Undo").grid(row=3, column=1)
-btn_type2.append(undo_btn)
-
-redo_btn = Button(middle_frame, image=my_images.redo_img, command=fns.redo)
-redo_btn.grid(row=2, column=2, pady=(10, 0))
-Label(middle_frame, text="Redo").grid(row=3, column=2)
-btn_type2.append(redo_btn)
-
-resize_btn = Button(middle_frame, image=my_images.resize_img,
-                    command=fns.resize_img)
-resize_btn.grid(row=2, column=3, pady=(10, 0))
-Label(middle_frame, text="Resize").grid(row=3, column=3)
-btn_type2.append(resize_btn)
-
-for w in btn_type2:
-    w.configure(width=42, height=42, anchor='nw')
-for w in btn_type1 + btn_type2:
-    w.configure(cursor="circle")
 for w in middle_frame.winfo_children():
-    w.configure(font=('Consolas', 11), border=0,
-                background=color_1, fg=color_2)
-for w in btn_type1:
-    w.configure(font=('Consolas bold', 13), width=13)
+    w.configure(bg=color_1, fg=color_2, width=13,
+                font=('Consolas bold', 13), cursor='circle')
+
+Line(middle_frame, 1)
+
+LabeledButton(middle_frame, 2, 0, my_images.crop_img, 'Crop', fns.crop_img)
+LabeledButton(middle_frame, 2, 1, my_images.undo_img, 'Undo', fns.undo)
+LabeledButton(middle_frame, 2, 2, my_images.redo_img, 'Redo', fns.redo)
+LabeledButton(middle_frame, 2, 3, my_images.resize_img,
+              'Resize', fns.resize_img)
 
 for i in range(4):
     main_frame.columnconfigure(i, weight=1)
 
-rotate_a_btn = Button(
-    main_frame, image=my_images.rotate_a_img, command=fns.rotate_a_img)
-rotate_a_btn.grid(row=2, column=0)
+DoubleLabledButton(main_frame, 0, 0, 'Rotate',  (my_images.rotate_a_img,
+                   fns.rotate_a_img), (my_images.rotate_c_img, fns.rotate_c_img))
+DoubleLabledButton(main_frame, 0, 2, 'Flip',  (my_images.flip_h_img,
+                   fns.flip_h_img), (my_images.flip_v_img, fns.flip_v_img))
 
-rotate_c_btn = Button(
-    main_frame, image=my_images.rotate_c_img, command=fns.rotate_c_img)
-rotate_c_btn.grid(row=2, column=1)
+Line(main_frame, 1)
 
-Label(main_frame, text="Rotate").grid(
-    row=3, column=0, columnspan=2)
+LabeledButton(main_frame, 2, 0, my_images.copy_img, 'Copy', fns.copy)
+LabeledButton(main_frame, 2, 1, my_images.paste_img, 'Paste', fns.paste)
+LabeledButton(main_frame, 2, 2, my_images.effects_img, 'Effects', fns.effects)
+LabeledButton(main_frame, 2, 3, my_images.add_img, 'Add Image', fns.add_img)
 
-flip_h_btn = Button(main_frame, image=my_images.flip_h_img,
-                    command=fns.flip_h_img)
-flip_h_btn.grid(row=2, column=2)
+Line(main_frame, 3)
 
-flip_v_btn = Button(main_frame, image=my_images.flip_v_img,
-                    command=fns.flip_v_img)
-flip_v_btn.grid(row=2, column=3)
-
-Label(main_frame, text="Flip").grid(
-    row=3, column=2, columnspan=2)
-
-Label(main_frame, text="-"*50,
-      ).grid(row=4, column=0, columnspan=4)
-
-
-invert_btn = Button(main_frame, image=my_images.invert_img,
-                    command=fns.invert_img)
-invert_btn.grid(row=5, column=0, pady=(20, 0))
-Label(main_frame, text="Invert\nColor", font=(
-    'Consolas', 11)).grid(row=6, column=0)
-
-black_n_white_btn = Button(main_frame, image=my_images.black_n_white_img,
-                           command=fns.black_n_white_img)
-black_n_white_btn.grid(row=5, column=1, pady=(20, 0))
-Label(main_frame, text="B & W").grid(row=6, column=1)
-
-effects_btn = Button(main_frame, image=my_images.effects_img,
-                     command=fns.effects)
-effects_btn.grid(row=5, column=2, pady=(20, 0))
-Label(main_frame, text="Effects").grid(row=6, column=2)
-
-Label(main_frame, text="-"*50,
-      ).grid(row=7, column=0, columnspan=4)
-
-brightnesss_scale = Scale(main_frame, label='Brightness',
-                          command=fns.update_brightness)
-brightnesss_scale.grid(row=8, column=0, pady=(20, 0), columnspan=4)
-fns.scales.append(brightnesss_scale)
-
-contrast_scale = Scale(main_frame, label='Contrast',
-                       command=fns.update_contrast)
-contrast_scale.grid(row=9, column=0, pady=(10, 0), columnspan=4)
-fns.scales.append(contrast_scale)
-
-sharpness_scale = Scale(main_frame, label='Sharpness',
-                        command=fns.update_sharpness)
-sharpness_scale.grid(row=10, column=0, pady=(10, 0), columnspan=4)
-fns.scales.append(sharpness_scale)
-
-color_scale = Scale(main_frame, label='Color', command=fns.update_color)
-color_scale.grid(row=11, column=0, pady=(10, 0), columnspan=4)
-fns.scales.append(color_scale)
-
-for s in fns.scales:
-    s.configure(orient=HORIZONTAL, from_=-50, to=50,
-                showvalue=False, length=main_frame_width*.7)
-    s.bind('<ButtonRelease 1>', fns.apply_enhance)
-
-for w in main_frame.winfo_children():
-    w.configure(font=('Consolas', 11), border=0,
-                background=color_1, fg=color_2)
+brightness_slider = Slider(main_frame, 4, main_frame_width*.7,
+                           'Brightness', fns.update_brightness, fns.apply_enhance)
+contrast_slider = Slider(main_frame, 5, main_frame_width*.7,
+                         'Contrast', fns.update_contrast, fns.apply_enhance)
+sharpness_slider = Slider(main_frame, 6, main_frame_width*.7,
+                          'Sharpness', fns.update_sharpness, fns.apply_enhance)
+color_slider = Slider(main_frame, 7, main_frame_width*.7,
+                      'Color', fns.update_color, fns.apply_enhance)
 
 # setting every frame non-resizable
 for w in root.winfo_children():

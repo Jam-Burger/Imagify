@@ -114,49 +114,49 @@ def start_selection(event, cmd):
 
 
 def crop_img(area=None):
-    if current_img:
-        if not area:
-            messagebox.showinfo(title="Imagify",
-                                message="Select area for crop")
-            img_window.bind(
-                '<Button-1>', lambda event: start_selection(event, crop_img))
-        else:
-            cropped_img = current_img.crop(area)
-            change_img(cropped_img)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    if not area:
+        messagebox.showinfo(title="Imagify",
+                            message="Select area for crop")
+        img_window.bind(
+            '<Button-1>', lambda event: start_selection(event, crop_img))
+    else:
+        cropped_img = current_img.crop(area)
+        change_img(cropped_img)
 
 
 def rotate_a_img():
-    if current_img:
-        rotated_img = current_img.rotate(90, expand=1)
-        change_img(rotated_img)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    rotated_img = current_img.rotate(90, expand=1)
+    change_img(rotated_img)
 
 
 def rotate_c_img():
-    if current_img:
-        rotated_img = current_img.rotate(-90, expand=1)
-        change_img(rotated_img)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    rotated_img = current_img.rotate(-90, expand=1)
+    change_img(rotated_img)
 
 
 def flip_h_img():
-    if current_img:
-        flipped_img = current_img.transpose(Image.FLIP_LEFT_RIGHT)
-        change_img(flipped_img)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    flipped_img = current_img.transpose(Image.FLIP_LEFT_RIGHT)
+    change_img(flipped_img)
 
 
 def flip_v_img():
-    if current_img:
-        flipped_img = current_img.transpose(Image.FLIP_TOP_BOTTOM)
-        change_img(flipped_img)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    flipped_img = current_img.transpose(Image.FLIP_TOP_BOTTOM)
+    change_img(flipped_img)
 
 
 def pmap(x, x1, x2, y1, y2):
@@ -164,14 +164,19 @@ def pmap(x, x1, x2, y1, y2):
     return m*(x - x1) + y1
 
 
+def inverted_img(img): return ImageOps.invert(img)
+
+
+def black_n_whited_img(img): return ImageEnhance.Color(img).enhance(0)
+
+
 # effects addition
-effects_list = {'None': NONE, 'Blur': BLUR, 'Contour': CONTOUR, 'Detail': DETAIL, 'Edge Enhance': EDGE_ENHANCE, 'Edge Enhance More': EDGE_ENHANCE_MORE,
-                'Emboss': EMBOSS, 'Find Edges': FIND_EDGES, 'Smooth': SMOOTH, 'Smooth More': SMOOTH_MORE, 'Sharpen': SHARPEN, 'Max-Filter': MaxFilter(size=3), 'Min-Filter': MinFilter(size=3)}
+effects_list = {'None': NONE, 'Blur': BLUR, 'Contour': CONTOUR, 'Detail': DETAIL, 'Edge Enhance': EDGE_ENHANCE,
+                'Edge Enhance More': EDGE_ENHANCE_MORE, 'Emboss': EMBOSS, 'Find Edges': FIND_EDGES,
+                'Smooth': SMOOTH, 'Smooth More': SMOOTH_MORE, 'Sharpen': SHARPEN,
+                'Max-Filter': MaxFilter(size=3), 'Min-Filter': MinFilter(size=3),
+                'Black & White': black_n_whited_img, 'Invert': inverted_img}
 effects_images = []
-# MaxFilter(3)
-def invert(c): return (255-c[0], 255-c[1], 255-c[2])
-
-
 sample_img = Image.open("images/sample.jpg")
 
 
@@ -184,8 +189,11 @@ class SampleImage:
     def show(self):
         global image
         image = sample_img.resize((150, 150))
-        if self.effect != 'None':
+        if self.effect in ['Black & White', 'Invert']:
+            image = effects_list[self.effect](image)
+        elif self.effect != 'None':
             image = image.filter(effects_list[self.effect])
+
         image = ImageTk.PhotoImage(image)
         effects_images.append(image)
 
@@ -202,12 +210,19 @@ effect_window = None
 
 
 def apply_effect(effect):
-    effect = effects_list[effect]
-    change_img(current_img.filter(effect))
+    if effect in ['Black & White', 'Invert']:
+        new_img = effects_list[effect](current_img)
+    else:
+        effect = effects_list[effect]
+        new_img = current_img.filter(effect)
+    change_img(new_img)
     effect_window.destroy()
 
 
 def effects():
+    if current_img is None:
+        image_does_not_exist_msg()
+        return
     global effect_window
     if effect_window:
         effect_window.destroy()
@@ -226,25 +241,14 @@ def effects():
             column = 0
 
 
-def invert_img():
-    if current_img:
-        inverted_img= ImageOps.invert(current_img)
-        change_img(inverted_img)
-    else:
-        image_does_not_exist_msg()
-
-
-def black_n_white_img():
-    new_img = ImageEnhance.Color(current_img)
-    new_img = new_img.enhance(0)
-    change_img(new_img)
-
-
 filtered_img = None
-scales = []
+sliders = []
 
 
 def update_brightness(val):
+    if current_img is None:
+        image_does_not_exist_msg()
+        return
     val = float(val)
     if val > 0:
         val = pmap(val, 0, 50, 1, 3)
@@ -260,6 +264,9 @@ def update_brightness(val):
 
 
 def update_contrast(val):
+    if current_img is None:
+        image_does_not_exist_msg()
+        return
     val = float(val)
     if val > 0:
         val = pmap(val, 0, 50, 1, 3)
@@ -275,6 +282,9 @@ def update_contrast(val):
 
 
 def update_sharpness(val):
+    if current_img is None:
+        image_does_not_exist_msg()
+        return
     val = float(val)
     if val > 0:
         val = pmap(val, 0, 50, 1, 5)
@@ -290,6 +300,9 @@ def update_sharpness(val):
 
 
 def update_color(val):
+    if current_img is None:
+        image_does_not_exist_msg()
+        return
     val = pmap(float(val), -50, 50, 0, 2)
     global filtered_img
     if filtered_img is None:
@@ -303,8 +316,20 @@ def apply_enhance(event=None):
     global filtered_img
     change_img(filtered_img)
     filtered_img = None
-    for s in scales:
+    for s in sliders:
         s.set(0)
+
+
+def copy(event=None):
+    pass
+
+
+def paste(event=None):
+    pass
+
+
+def add_img():
+    pass
 
 
 def resize(w, h):
@@ -346,58 +371,59 @@ resize_window = None
 
 
 def resize_img():
-    if current_img:
-        global resize_window
-        if resize_window:
-            resize_window.destroy()
-
-        resize_window = Toplevel(img_window)
-        resize_window.title("Resize")
-        resize_window.geometry("300x150")
-        resize_window.resizable(0, 0)
-        resize_window.focus()
-        Label(resize_window, text="Width").grid(
-            row=0, column=0, padx=10, pady=10)
-        Label(resize_window, text="Height").grid(row=1, column=0, padx=10)
-        i_w, i_h = current_img.size
-
-        global var, width, height
-        width = IntVar(value=i_w)
-        height = IntVar(value=i_h)
-        width_entry = Entry(resize_window, textvariable=width, width=10, )
-        width_entry.grid(
-            row=0, column=1, padx=10, pady=10, sticky=W)
-        height_entry = Entry(resize_window, textvariable=height, width=10)
-        height_entry.grid(
-            row=1, column=1, padx=10, pady=10, sticky=W)
-        width_entry.configure(invcmd=lambda: aspect_ratio(height_entry))
-        var = IntVar(value=0)
-        Checkbutton(resize_window, text="Keep Aspect Ratio", variable=var, command=lambda: aspect_ratio(height_entry)).grid(
-            row=2, column=0, padx=10, pady=10, sticky=W)
-        Button(resize_window, text="OK", width=10,
-               command=lambda: resize(width, height)).grid(row=2, column=1, padx=10, pady=10, sticky=W)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+
+    global resize_window
+    if resize_window:
+        resize_window.destroy()
+
+    resize_window = Toplevel(img_window)
+    resize_window.title("Resize")
+    resize_window.geometry("300x150")
+    resize_window.resizable(0, 0)
+    resize_window.focus()
+    Label(resize_window, text="Width").grid(
+        row=0, column=0, padx=10, pady=10)
+    Label(resize_window, text="Height").grid(row=1, column=0, padx=10)
+    i_w, i_h = current_img.size
+
+    global var, width, height
+    width = IntVar(value=i_w)
+    height = IntVar(value=i_h)
+    width_entry = Entry(resize_window, textvariable=width, width=10, )
+    width_entry.grid(
+        row=0, column=1, padx=10, pady=10, sticky=W)
+    height_entry = Entry(resize_window, textvariable=height, width=10)
+    height_entry.grid(
+        row=1, column=1, padx=10, pady=10, sticky=W)
+    width_entry.configure(invcmd=lambda: aspect_ratio(height_entry))
+    var = IntVar(value=0)
+    Checkbutton(resize_window, text="Keep Aspect Ratio", variable=var, command=lambda: aspect_ratio(height_entry)).grid(
+        row=2, column=0, padx=10, pady=10, sticky=W)
+    Button(resize_window, text="OK", width=10,
+           command=lambda: resize(width, height)).grid(row=2, column=1, padx=10, pady=10, sticky=W)
 
 
 def undo(event=None):
     global current
-    if current_img:
-        if current - 1 >= 0:
-            current -= 1
-            change_img(history_data[current], add_in_history=False)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    if current - 1 >= 0:
+        current -= 1
+        change_img(history_data[current], add_in_history=False)
 
 
 def redo(event=None):
     global current
-    if current_img:
-        if current + 1 < len(history_data):
-            current += 1
-            change_img(history_data[current], add_in_history=False)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    if current + 1 < len(history_data):
+        current += 1
+        change_img(history_data[current], add_in_history=False)
 
 
 def select_path(type):
@@ -432,12 +458,12 @@ def open_img(event=None):
 
 
 def save_img(event=None):
-    if current_img:
-        path = select_path('save')
-        if path:
-            current_img.save(path)
-    else:
+    if current_img is None:
         image_does_not_exist_msg()
+        return
+    path = select_path('save')
+    if path:
+        current_img.save(path)
 
 
 def quit(parent):
