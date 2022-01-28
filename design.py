@@ -38,12 +38,13 @@ class DoubleLabledButton:
 class Slider:
     def __init__(self, master, row, length, label, update_command, release_command):
         self.scale = Scale(master, label=label, command=update_command, orient=HORIZONTAL, from_=-50, to=50,
-                showvalue=False, length=length, font=('Consolas', 11), bg=color_1, fg=color_2)
-        self.scale.grid(row=row, column=0, pady=(20, 0), columnspan=4)
+                           showvalue=False, length=length, font=('Consolas', 11), bg=color_1, fg=color_2)
+        self.scale.grid(row=row, column=0, pady=(0, 15), columnspan=4)
         self.scale.bind('<ButtonRelease 1>', release_command)
         sliders.append(self.scale)
 
+
 class Line:
-    def __init__(self, master, row):
-        Label(master, text = "-"*50, font = ('Consolas', 11), bg = color_1,
-              fg = color_2).grid(row = row, column = 0, columnspan = 4)
+    def __init__(self, master, row, pady=(0, 0)):
+        Label(master, text="-"*50, font=('Consolas', 11), bg=color_1,
+              fg=color_2).grid(row=row, column=0, columnspan=4, pady=pady)

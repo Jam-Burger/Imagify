@@ -1,3 +1,4 @@
+from math import sqrt
 from tkinter import *
 from PIL import Image, ImageTk, ImageEnhance, ImageOps
 from PIL.ImageFilter import *
@@ -5,18 +6,31 @@ from tkinter import filedialog, messagebox
 
 img_window = None
 current_img = None
+clipboard_img = None
 i_f_w = i_f_h = 0
 
 history_data = []
 current = -1
 
+status = None
 
-def set_img_window(i_w, w_w, w_h):
+
+def set_img_window(i_w, f_w, f_h):
     global img_window, i_f_w, i_f_h
     img_window = i_w
-    i_f_w = w_w
-    i_f_h = w_h
+    i_f_w = f_w
+    i_f_h = f_h
 
+
+def set_status(st):
+    global status
+    status = st
+
+def update_status(val):
+    status.configure(text=val)
+
+def success_status():
+    update_status("Changes are done successfully")
 
 def fit_image(img, w, h):
     i_w, i_h = img.size
@@ -31,16 +45,12 @@ def fit_image(img, w, h):
         in_h = int(i_h/w_s)
     return img.resize((in_w, in_h))
 
-
 def change_img(new_img, add_in_history=True, update=True):
-    # if a very large image is given then resize
-    i_w, i_h = new_img.size
-    if i_w > 1400:
-        new_img = new_img.resize((1400, int(1400*i_h/i_w)))
-    elif i_h > 1400:
-        new_img = new_img.resize((int(1400*i_w/i_h), 1400))
-
     global current_img, photo, current
+    w, h = new_img.size
+    if w > 2048 or h > 2048:
+        new_img = fit_image(new_img, 2048, 2048)
+
     if update:
         current_img = new_img
     if add_in_history:
@@ -53,6 +63,7 @@ def change_img(new_img, add_in_history=True, update=True):
     photo = ImageTk.PhotoImage(new_img)
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
+    if status is not None : success_status()
 
 
 def origional(cord):
@@ -69,59 +80,104 @@ def valid(a, b):
     return origional(a) + origional(b)
 
 
-rect = c1 = c2 = None
+def dist(p1, p2):
+    return ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**.5
 
 
-def end_selection(cmd):
-    img_window.unbind('<ButtonRelease-1>')
-    img_window.unbind('<B1-Motion>')
-    img_window.unbind('<Button 1>')
-    global rect
-    cmd(valid(p1, p2))
-    img_window.delete(rect, c1, c2)
-    rect = None
+class Selection:
+    def __init__(self, cmd, img=None):
+        img_window.bind('<Button 1>', self.start)
+        self.command = cmd
+        self.rect = None
+        self.img = img
 
+    def start(self, mouse):
+        img_window.unbind('<Button 1>')
+        self.p1 = self.p2 = [mouse.x, mouse.y]
+        img_window.bind('<B1 Motion>', self.expand)
+        img_window.bind('<Double Button 1>', self.end)
 
-def expand_selection(event, cmd):
-    global p2, rect, c1, c2
-    iw_w = img_window.winfo_width()
-    iw_h = img_window.winfo_height()
-    p2 = [event.x, event.y]
-    if p2[0] < 0:
-        p2[0] = 0
-    elif p2[0] > iw_w - 1:
-        p2[0] = iw_w - 1
-    if p2[1] < 0:
-        p2[1] = 0
-    elif p2[1] > iw_h - 1:
-        p2[1] = iw_h - 1
+    def expand(self, mouse):
+        iw_w = img_window.winfo_width()
+        iw_h = img_window.winfo_height()
+        self.p2 = [mouse.x, mouse.y]
+        if self.p2[0] < 0:
+            self.p2[0] = 0
+        elif self.p2[0] > iw_w - 1:
+            self.p2[0] = iw_w - 1
+        if self.p2[1] < 0:
+            self.p2[1] = 0
+        elif self.p2[1] > iw_h - 1:
+            self.p2[1] = iw_h - 1
+        self.draw()
+        update_status("Selecting")
+        img_window.bind('<ButtonRelease 1>', self.drew)
 
-    x1, y1 = p1
-    x2, y2 = p2
-    if rect:
-        img_window.delete(rect, c1, c2)
-    rect = img_window.create_rectangle(
-        x1, y1, x2, y2, outline='white', width=3)
-    c1 = img_window.create_oval(x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill='black')
-    c2 = img_window.create_oval(x2 - 5, y2 - 5, x2 + 5, y2 + 5, fill='black')
-    img_window.bind('<ButtonRelease-1>', lambda event: end_selection(cmd))
+    def drew(self, mouse):
+        update_status("Double click to confirm selection\nor drag vertices to change selection")
+        img_window.unbind('<ButtonRelease 1>')
+        img_window.bind('<B1 Motion>', self.update)
 
+    def update(self, mouse):
+        iw_w = img_window.winfo_width()
+        iw_h = img_window.winfo_height()
 
-def start_selection(event, cmd):
-    global p1, p2
-    p1 = p2 = [event.x, event.y]
-    img_window.bind('<B1-Motion>', lambda event: expand_selection(event, cmd))
+        for i, p_ in enumerate((self.p1, self.p2)):
+            if dist(p_, (mouse.x, mouse.y)) < 20:
+                p = [mouse.x, mouse.y]
+                if p[0] < 0:
+                    p[0] = 0
+                elif p[0] > iw_w - 1:
+                    p[0] = iw_w - 1
+
+                if p[1] < 0:
+                    p[1] = 0
+                elif p[1] > iw_h - 1:
+                    p[1] = iw_h - 1
+                if i == 0:
+                    self.p1 = p
+                else:
+                    self.p2 = p
+                break
+        self.draw()
+
+    def end(self, mouse=None):
+        img_window.unbind('<B1 Motion>')
+        img_window.unbind('<ButtonRelease 1>')
+        img_window.unbind('<Double Button 1>')
+        img_window.delete(self.rect, self.c1, self.c2)
+        self.command(area=valid(self.p1, self.p2))
+
+    def draw(self):
+        x1, y1 = self.p1
+        x2, y2 = self.p2
+        if self.rect is not None:
+            img_window.delete(self.rect, self.c1, self.c2)
+
+        if self.img is not None:
+            x = (x1+x2)/2
+            y = (y1+y2)/2
+            w = abs(x1-x2)
+            h = abs(y1-y2)
+            # print(w, h)
+            self.new_img = ImageTk.PhotoImage(self.img.resize((w, h)))
+            self.rect = img_window.create_image(x, y, image=self.new_img)
+        else:
+            self.rect = img_window.create_rectangle(
+                x1, y1, x2, y2, outline='white', width=3)
+        self.c1 = img_window.create_oval(
+            x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill='black')
+        self.c2 = img_window.create_oval(
+            x2 - 5, y2 - 5, x2 + 5, y2 + 5, fill='black')
 
 
 def crop_img(area=None):
     if current_img is None:
         image_does_not_exist_msg()
         return
-    if not area:
-        messagebox.showinfo(title="Imagify",
-                            message="Select area for crop")
-        img_window.bind(
-            '<Button-1>', lambda event: start_selection(event, crop_img))
+    if area is None:
+        update_status("Drag mouse to select area")
+        Selection(crop_img)
     else:
         cropped_img = current_img.crop(area)
         change_img(cropped_img)
@@ -159,14 +215,35 @@ def flip_v_img():
     change_img(flipped_img)
 
 
-def pmap(x, x1, x2, y1, y2):
-    m = (y1-y2)/(x1-x2)
-    return m*(x - x1) + y1
+def copy(event=None, area=None):
+    if current_img is None:
+        image_does_not_exist_msg()
+        return
+    if area is None:
+        update_status("Drag mouse to select area")
+        Selection(cmd=copy)
+    else:
+        global clipboard_img
+        clipboard_img = current_img.crop(area)
+        update_status("Area copied to clipboard")
+
+
+def paste(event=None, area=None):
+    if clipboard_img is not None:
+        if area is None:
+            update_status("Drag mouse to paste image")
+            Selection(cmd=paste, img=clipboard_img)
+        else:
+            x1, y1, x2, y2 = area
+            w = int(abs(x1-x2))
+            h = int(abs(y1-y2))
+
+            new_img = current_img.copy()
+            new_img.paste(clipboard_img.resize((w, h)), area)
+            change_img(new_img)
 
 
 def inverted_img(img): return ImageOps.invert(img)
-
-
 def black_n_whited_img(img): return ImageEnhance.Color(img).enhance(0)
 
 
@@ -197,7 +274,7 @@ class SampleImage:
         image = ImageTk.PhotoImage(image)
         effects_images.append(image)
 
-        frame = Frame(effect_window, padx=10, pady=10)
+        frame = Frame(effect_window, padx=10, pady=10, cursor='spraycan')
         frame.grid(row=self.row, column=self.column)
         img_label = Label(frame, image=image)
         img_label.pack()
@@ -210,13 +287,16 @@ effect_window = None
 
 
 def apply_effect(effect):
+    effect_window.destroy()
+    if effect == 'None':
+        update_status("Closed effects window")
+        return
     if effect in ['Black & White', 'Invert']:
         new_img = effects_list[effect](current_img)
     else:
         effect = effects_list[effect]
         new_img = current_img.filter(effect)
     change_img(new_img)
-    effect_window.destroy()
 
 
 def effects():
@@ -239,22 +319,51 @@ def effects():
         if column % 5 == 0:
             row += 1
             column = 0
+    update_status("Choose any effect from window")
 
 
 filtered_img = None
 sliders = []
 
+added_img = None
+
+
+def add_img(area=None):
+    if area is None:
+        filename = select_path('open')
+        if filename:
+            global added_img
+            added_img = Image.open(filename)
+            if added_img is not None:
+                update_status("Drag mouse to add image")
+                Selection(cmd=add_img, img=added_img)
+    else:
+        x1, y1, x2, y2 = area
+        w = int(abs(x1-x2))
+        h = int(abs(y1-y2))
+
+        new_img = current_img.copy()
+        new_img.paste(added_img.resize((w, h)), area)
+        change_img(new_img)
+
+
+def pmap(x, x1, x2, y1, y2):
+    m = (y1-y2)/(x1-x2)
+    return m*(x - x1) + y1
+
 
 def update_brightness(val):
     if current_img is None:
         image_does_not_exist_msg()
+        for s in sliders:
+            s.set(0)
         return
     val = float(val)
     if val > 0:
         val = pmap(val, 0, 50, 1, 3)
     else:
         val = pmap(val, -50, 0, 0, 1)
-
+    update_status("Updating brightness")
     global filtered_img
     if filtered_img is None:
         filtered_img = current_img
@@ -266,6 +375,8 @@ def update_brightness(val):
 def update_contrast(val):
     if current_img is None:
         image_does_not_exist_msg()
+        for s in sliders:
+            s.set(0)
         return
     val = float(val)
     if val > 0:
@@ -284,6 +395,8 @@ def update_contrast(val):
 def update_sharpness(val):
     if current_img is None:
         image_does_not_exist_msg()
+        for s in sliders:
+            s.set(0)
         return
     val = float(val)
     if val > 0:
@@ -302,6 +415,8 @@ def update_sharpness(val):
 def update_color(val):
     if current_img is None:
         image_does_not_exist_msg()
+        for s in sliders:
+            s.set(0)
         return
     val = pmap(float(val), -50, 50, 0, 2)
     global filtered_img
@@ -320,30 +435,21 @@ def apply_enhance(event=None):
         s.set(0)
 
 
-def copy(event=None):
-    pass
-
-
-def paste(event=None):
-    pass
-
-
-def add_img():
-    pass
-
-
-def resize(w, h):
+def resize():
     try:
-        width = w.get()
-        height = h.get()
-        if width <= 0 or height <= 0 or width > 2000 or height > 2000:
+        w = width.get()
+        h = height.get()
+        if var.get():
+            h = int(w*current_img.size[1]/current_img.size[0])
+
+        if w <= 0 or h <= 0 or w > 2048 or h > 2048:
             messagebox.showerror(title="Imagify",
-                                 message="Please enter from 1 to 2000.")
+                                 message="Please enter from 1 to 2048.")
             resize_window.focus()
         else:
             resize_window.destroy()
-            if (width, height) != current_img.size:
-                change_img(current_img.resize((width, height)))
+            if (w, h) != current_img.size:
+                change_img(current_img.resize((w, h)))
     except:
         messagebox.showerror(title="Imagify",
                              message="Please enter valid input.")
@@ -362,9 +468,7 @@ def aspect_ratio(height_entry):
         else:
             height_entry.configure(state=NORMAL)
     except:
-        messagebox.showerror(title="Imagify",
-                             message="Please enter valid input.")
-        resize_window.focus()
+        pass
 
 
 resize_window = None
@@ -392,18 +496,22 @@ def resize_img():
     global var, width, height
     width = IntVar(value=i_w)
     height = IntVar(value=i_h)
-    width_entry = Entry(resize_window, textvariable=width, width=10, )
+    width_entry = Entry(resize_window, textvariable=width, width=10)
     width_entry.grid(
         row=0, column=1, padx=10, pady=10, sticky=W)
     height_entry = Entry(resize_window, textvariable=height, width=10)
     height_entry.grid(
         row=1, column=1, padx=10, pady=10, sticky=W)
-    width_entry.configure(invcmd=lambda: aspect_ratio(height_entry))
+
     var = IntVar(value=0)
     Checkbutton(resize_window, text="Keep Aspect Ratio", variable=var, command=lambda: aspect_ratio(height_entry)).grid(
         row=2, column=0, padx=10, pady=10, sticky=W)
+
+    width_entry.bind(
+        '<KeyRelease>', func=lambda event: aspect_ratio(height_entry))
     Button(resize_window, text="OK", width=10,
-           command=lambda: resize(width, height)).grid(row=2, column=1, padx=10, pady=10, sticky=W)
+           command=lambda: resize()).grid(row=2, column=1, padx=10, pady=10, sticky=W)
+    update_status("Enter value of new size")
 
 
 def undo(event=None):
@@ -448,13 +556,14 @@ def select_path(type):
 
 def open_img(event=None):
     filename = select_path('open')
-    if(filename):
+    if filename:
         img = Image.open(filename)
         if img:
             global current
             history_data.clear()
             current = -1
             change_img(img)
+            update_status("Opened successfully")
 
 
 def save_img(event=None):
@@ -464,6 +573,7 @@ def save_img(event=None):
     path = select_path('save')
     if path:
         current_img.save(path)
+        update_status("Saved successfully")
 
 
 def quit(parent):

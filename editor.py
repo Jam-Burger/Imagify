@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from PIL import Image
 from pip import main
 
@@ -77,13 +78,13 @@ color_1 = design.color_1
 color_2 = design.color_2
 
 middle_frame_height = height*.15
-middle_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
-                     pady=10, width=main_frame_width, height=middle_frame_height, relief=RIDGE)
+middle_frame = Frame(root, height=middle_frame_height, border=3, borderwidth=5, bg=color_1,
+                     pady=10, width=main_frame_width, relief=RIDGE)
 middle_frame.grid(row=1, column=1, padx=10, pady=(
     10, 0), ipadx=5, ipady=5, sticky=N)
 
-main_frame = Frame(root, border=3, borderwidth=5, bg=color_1,
-                   pady=20, width=main_frame_width, height=height - 340 - middle_frame_height, relief=RIDGE)
+main_frame = Frame(root, height=height - 340 - middle_frame_height, border=3, borderwidth=5, bg=color_1,
+                   pady=10, width=main_frame_width, relief=RIDGE)
 main_frame.grid(row=2, column=1, padx=10, pady=(5, 0))
 
 # importing images
@@ -138,7 +139,7 @@ LabeledButton(main_frame, 2, 1, my_images.paste_img, 'Paste', fns.paste)
 LabeledButton(main_frame, 2, 2, my_images.effects_img, 'Effects', fns.effects)
 LabeledButton(main_frame, 2, 3, my_images.add_img, 'Add Image', fns.add_img)
 
-Line(main_frame, 3)
+Line(main_frame, 3, pady=(0, 10))
 
 brightness_slider = Slider(main_frame, 4, main_frame_width*.7,
                            'Brightness', fns.update_brightness, fns.apply_enhance)
@@ -149,6 +150,15 @@ sharpness_slider = Slider(main_frame, 6, main_frame_width*.7,
 color_slider = Slider(main_frame, 7, main_frame_width*.7,
                       'Color', fns.update_color, fns.apply_enhance)
 
+Line(main_frame, 8)
+
+status = Label(main_frame, bg=color_1, text='----Status----',
+               fg=color_2, font=('Consolas bold', 10))
+status.grid(row=9, column=0, columnspan=4)
+if fns.current_img is None:
+    status.configure(text="Open a new image")
+
+fns.set_status(status)
 # setting every frame non-resizable
 for w in root.winfo_children():
     w.grid_propagate(0)
