@@ -24,7 +24,7 @@ class Images:
         self.paste_img = tk_img("images/paste.png", icon_size)
 
         self.effects_img = tk_img("images/effects.png", icon_size)
-        self.add_img= tk_img("images/add.png", icon_size)
+        self.add_img = tk_img("images/add.png", icon_size)
 
         self.undo_img = tk_img("images/undo.png", icon_size)
         self.redo_img = tk_img("images/redo.png", icon_size)

@@ -26,11 +26,14 @@ def set_status(st):
     global status
     status = st
 
+
 def update_status(val):
     status.configure(text=val)
 
+
 def success_status():
     update_status("Changes are done successfully")
+
 
 def fit_image(img, w, h):
     i_w, i_h = img.size
@@ -44,6 +47,7 @@ def fit_image(img, w, h):
         in_w = w
         in_h = int(i_h/w_s)
     return img.resize((in_w, in_h))
+
 
 def change_img(new_img, add_in_history=True, update=True):
     global current_img, photo, current
@@ -63,7 +67,8 @@ def change_img(new_img, add_in_history=True, update=True):
     photo = ImageTk.PhotoImage(new_img)
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
-    if status is not None and update: success_status()
+    if status is not None and update:
+        success_status()
 
 
 def origional(cord):
@@ -87,6 +92,7 @@ def dist(p1, p2):
 class Selection:
     def __init__(self, cmd, img=None):
         img_window.bind('<Button 1>', self.start)
+        img_window.configure(cursor='tcross')
         self.command = cmd
         self.rect = None
         self.img = img
@@ -114,7 +120,8 @@ class Selection:
         img_window.bind('<ButtonRelease 1>', self.drew)
 
     def drew(self, mouse):
-        update_status("Double click to confirm selection\nor drag vertices to change selection")
+        update_status(
+            "Double click to confirm selection\nor drag vertices to change selection")
         img_window.unbind('<ButtonRelease 1>')
         img_window.bind('<B1 Motion>', self.update)
 
@@ -145,6 +152,7 @@ class Selection:
         img_window.unbind('<B1 Motion>')
         img_window.unbind('<ButtonRelease 1>')
         img_window.unbind('<Double Button 1>')
+        img_window.configure(cursor='arrow')
         img_window.delete(self.rect, self.c1, self.c2)
         self.command(area=valid(self.p1, self.p2))
 
@@ -554,10 +562,10 @@ def select_path(type):
 
 
 def open_img(event=None):
-    ans= "no"
+    ans = "no"
     if len(history_data) > 1:
         ans = want_to_save_msg()
-        
+
     if ans is not None:
         filename = select_path('open')
         if filename:
@@ -593,12 +601,14 @@ def about(event=None):
     messagebox.showinfo(
         title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay")
 
+
 def want_to_save_msg():
     ans = messagebox.askyesnocancel(
-            "Imagify", "Do you want to save your changes?", icon='warning')
+        "Imagify", "Do you want to save your changes?", icon='warning')
     if ans == True:
         save_img()
     return ans
+
 
 def image_does_not_exist_msg():
     messagebox.showerror(title="Imagify",
