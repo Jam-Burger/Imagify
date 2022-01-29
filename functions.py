@@ -63,7 +63,7 @@ def change_img(new_img, add_in_history=True, update=True):
     photo = ImageTk.PhotoImage(new_img)
     img_window.create_image(in_w/2, in_h/2, image=photo)
     img_window.configure(width=in_w, height=in_h)
-    if status is not None : success_status()
+    if status is not None and update: success_status()
 
 
 def origional(cord):
@@ -363,7 +363,6 @@ def update_brightness(val):
         val = pmap(val, 0, 50, 1, 3)
     else:
         val = pmap(val, -50, 0, 0, 1)
-    update_status("Updating brightness")
     global filtered_img
     if filtered_img is None:
         filtered_img = current_img
@@ -555,15 +554,20 @@ def select_path(type):
 
 
 def open_img(event=None):
-    filename = select_path('open')
-    if filename:
-        img = Image.open(filename)
-        if img:
-            global current
-            history_data.clear()
-            current = -1
-            change_img(img)
-            update_status("Opened successfully")
+    ans= "no"
+    if len(history_data) > 1:
+        ans = want_to_save_msg()
+        
+    if ans is not None:
+        filename = select_path('open')
+        if filename:
+            img = Image.open(filename)
+            if img:
+                global current
+                history_data.clear()
+                current = -1
+                change_img(img)
+                update_status("Opened successfully")
 
 
 def save_img(event=None):
@@ -578,11 +582,8 @@ def save_img(event=None):
 
 def quit(parent):
     if len(history_data) > 1:
-        ans = messagebox.askyesnocancel(
-            "Imagify", "Do you want to save your changes?", icon='warning')
-        if ans == True:
-            save_img()
-        elif ans == False:
+        ans = want_to_save_msg()
+        if ans == False:
             parent.destroy()
     elif messagebox.askokcancel("Imagify", "Do you want to quit?", icon='warning'):
         parent.destroy()
@@ -592,11 +593,12 @@ def about(event=None):
     messagebox.showinfo(
         title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay")
 
-
-def not_done_msg():
-    messagebox.showinfo(
-        title="Imagify", message="This feature is not done yet.")
-
+def want_to_save_msg():
+    ans = messagebox.askyesnocancel(
+            "Imagify", "Do you want to save your changes?", icon='warning')
+    if ans == True:
+        save_img()
+    return ans
 
 def image_does_not_exist_msg():
     messagebox.showerror(title="Imagify",
