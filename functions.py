@@ -599,7 +599,7 @@ def quit(parent):
 
 def about(event=None):
     messagebox.showinfo(
-        title="Imagify", message="Imagify", detail="Version: 1.0.1\nProduct of Jam-Burger\nDeveloped by Jay")
+        title="Imagify", message="Imagify", detail="Version: 0.3.2\nProduct of Jam-Burger\nDeveloped by Jay")
 
 
 def want_to_save_msg():

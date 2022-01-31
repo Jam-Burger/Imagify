@@ -1,7 +1,5 @@
 from tkinter import *
-from tkinter import ttk
 from PIL import Image
-from pip import main
 
 import functions as fns
 from resources import Images
@@ -38,7 +36,7 @@ file_menu.add_command(
     label="Exit", command=lambda: fns.quit(root), accelerator="Ctrl+Q")
 root.bind('<Control-q>', func=lambda event: fns.quit(root))
 
-edit_menu = Menu(menu_bar, tearoff=0)
+edit_menu = Menu(menu_bar, tearoff=0, activeborderwidth=5)
 menu_bar.add_cascade(label="Edit", menu=edit_menu)
 edit_menu.add_command(label="Undo", command=fns.undo, accelerator="Ctrl+Z")
 root.bind('<Control-z>', fns.undo)
@@ -50,7 +48,7 @@ root.bind('<Control-c>', fns.copy)
 edit_menu.add_command(label="Paste", command=fns.paste, accelerator="Ctrl+V")
 root.bind('<Control-v>', fns.paste)
 
-help_menu = Menu(menu_bar, tearoff=0)
+help_menu = Menu(menu_bar, tearoff=0, activeborderwidth=5)
 menu_bar.add_cascade(label="Help", menu=help_menu)
 help_menu.add_command(label="About", command=fns.about)
 
