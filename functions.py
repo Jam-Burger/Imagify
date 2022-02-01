@@ -174,9 +174,9 @@ class Selection:
             self.rect = img_window.create_rectangle(
                 x1, y1, x2, y2, outline='white', width=3)
         self.c1 = img_window.create_oval(
-            x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill='black')
+            x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill='black', outline= 'white')
         self.c2 = img_window.create_oval(
-            x2 - 5, y2 - 5, x2 + 5, y2 + 5, fill='black')
+            x2 - 5, y2 - 5, x2 + 5, y2 + 5, fill='black', outline= 'white')
 
 
 def crop_img(area=None):
